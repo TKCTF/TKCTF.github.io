@@ -3,131 +3,905 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>浙江同济科技职业学院信息安全社团官网</title>
+    <title>TKCTF - 浙江同济科技职业学院信息安全社团</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            box-sizing: border-box;
         }
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            background: linear-gradient(135deg, #0c1121 0%, #1a1f3a 50%, #0c1121 100%);
+            color: #00e4ff;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
-        nav {
-            background-color: #34495e;
-            padding: 10px;
+
+        /* 数据流背景系统 */
+        .data-streams {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
         }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
+
+        .data-stream {
+            position: absolute;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: #00e4ff;
+            white-space: nowrap;
+            opacity: 0;
+            animation: dataFlow 8s linear infinite;
         }
+
+        .data-stream:nth-child(2n) {
+            color: #007acc;
+            animation-duration: 10s;
+            animation-delay: -2s;
+            font-size: 14px;
+        }
+
+        .data-stream:nth-child(3n) {
+            color: #0099ff;
+            animation-duration: 12s;
+            animation-delay: -4s;
+            font-size: 10px;
+        }
+
+        .data-stream:nth-child(5n) {
+            color: #66ccff;
+            animation-duration: 15s;
+            animation-delay: -6s;
+            font-size: 8px;
+        }
+
+        .data-stream:nth-child(7n) {
+            color: #33aaff;
+            animation-duration: 18s;
+            animation-delay: -8s;
+            font-size: 16px;
+        }
+
+        @keyframes dataFlow {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0px);
+            }
+            5% {
+                opacity: 0.8;
+            }
+            95% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20vh) translateX(var(--drift-x, 0px));
+            }
+        }
+
+        /* 二进制数据流 */
+        .binary-stream {
+            position: absolute;
+            font-family: 'Consolas', monospace;
+            font-size: 10px;
+            color: rgba(0, 228, 255, 0.3);
+            white-space: nowrap;
+            opacity: 0;
+            animation: binaryFlow 20s linear infinite;
+        }
+
+        @keyframes binaryFlow {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(calc(100vw + 100px));
+            }
+        }
+
+        /* 网格背景 */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 228, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 228, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* 主容器 */
         .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 60px 0;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .logo-svg {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 0 20px #00e4ff);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px #00e4ff); }
+            50% { filter: drop-shadow(0 0 40px #00e4ff) drop-shadow(0 0 60px #007acc); }
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00e4ff, #007acc, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 228, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #66ccff;
+            opacity: 0.9;
+        }
+
+        /* 导航 */
+        nav {
+            background: rgba(0, 20, 40, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 228, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px 0;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #00e4ff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 228, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        nav a:hover:before {
+            left: 100%;
+        }
+
+        nav a:hover {
+            background: rgba(0, 228, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 228, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* 内容区块 - 毛玻璃效果 */
+        .content-section {
+            background: rgba(10, 25, 50, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 228, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 8px 32px rgba(0, 228, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        /* 边框流动点缀效果 */
+        .content-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(45deg,
+                transparent,
+                transparent,
+                rgba(0, 228, 255, 0.3),
+                transparent,
+                transparent,
+                rgba(0, 153, 255, 0.2),
+                transparent,
+                transparent);
+            background-size: 400% 400%;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            animation: subtleBorderFlow 6s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        /* 确保内容在伪元素之上 */
+        .content-section > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes subtleBorderFlow {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            25% {
+                background-position: 100% 50%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            color: #00e4ff;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 228, 255, 0.5);
+        }
+
+        .content-section h3 {
+            font-size: 1.8rem;
+            color: #66ccff;
+            margin-bottom: 15px;
+        }
+
+        .content-section p {
+            font-size: 1.1rem;
+            color: #b3e0ff;
+            margin-bottom: 20px;
+        }
+
+        /* 社长列表 */
+        .president-item {
+            background: rgba(0, 40, 80, 0.4);
+            border: 1px solid rgba(0, 228, 255, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .president-item:hover {
+            background: rgba(0, 40, 80, 0.7);
+            border-color: rgba(0, 228, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 228, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .president-year {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #00e4ff;
+            margin-bottom: 10px;
+        }
+
+        .president-names {
+            font-size: 1.2rem;
+            color: #66ccff;
+            margin-bottom: 15px;
+        }
+
+        .achievements {
+            color: #b3e0ff;
+            line-height: 1.6;
+        }
+
+        /* 社员列表 */
+        .member-group {
+            background: rgba(0, 40, 80, 0.3);
+            border: 1px solid rgba(0, 228, 255, 0.2);
+            border-radius: 10px;
             padding: 20px;
-            max-width: 900px;
-            margin: auto;
+            margin-bottom: 20px;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
+
+        .member-year {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00e4ff;
+            margin-bottom: 15px;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+
+        .member-list {
+            color: #b3e0ff;
+            line-height: 1.8;
         }
-        li {
-            background: white;
-            margin: 10px 0;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+
+        /* 链接样式 */
+        a {
+            color: #00e4ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
+
+        a:hover {
+            color: #66ccff;
+            text-shadow: 0 0 10px rgba(0, 228, 255, 0.7);
+        }
+
+        /* 联系信息 */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .contact-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            color: #00e4ff;
+        }
+
+        /* 页脚 */
         footer {
             text-align: center;
-            padding: 20px;
-            background-color: #2c3e50;
-            color: white;
-            margin-top: 20px;
+            padding: 40px 0;
+            background: rgba(0, 20, 40, 0.8);
+            border-top: 1px solid rgba(0, 228, 255, 0.3);
+            margin-top: 60px;
+        }
+
+        /* 标题出场动画 */
+        .title-fade-in {
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            animation: titleFadeIn 2s ease-out forwards;
+        }
+
+        .subtitle-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: subtitleFadeIn 1.5s ease-out forwards;
+            animation-delay: 1s;
+        }
+
+        @keyframes titleFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes subtitleFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 0.9;
+                transform: translateY(0);
+            }
+        }
+
+        /* 简化的关于我们标题效果 */
+        .about-title {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        .about-content {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .about-content:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        .about-content:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        .about-content:nth-child(5) {
+            animation-delay: 1.6s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+
+            .logo-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                padding: 0 10px;
+            }
+
+            nav {
+                position: sticky;
+                top: 10px;
+                padding: 15px 0;
+                margin-bottom: 25px;
+            }
+
+            nav a {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+                text-align: center;
+                border-radius: 8px;
+                flex: 0 1 auto;
+                min-width: 80px;
+            }
+
+            .content-section {
+                padding: 25px 20px;
+                margin-bottom: 30px;
+            }
+
+            .content-section h2 {
+                font-size: 2rem;
+                margin-bottom: 20px;
+            }
+
+            /* 移动端优化毛玻璃效果 */
+            .content-section {
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+            }
+
+            /* 移动端社长和成员信息优化 */
+            .president-item, .member-group {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            .president-year, .member-year {
+                font-size: 1.2rem;
+            }
+
+            .president-names {
+                font-size: 1.1rem;
+            }
+
+            /* 联系信息移动端优化 */
+            .contact-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                margin-bottom: 20px;
+            }
+
+            .contact-icon {
+                margin-bottom: 5px;
+            }
+        }
+
+        /* 超小屏幕优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            header {
+                padding: 40px 0;
+            }
+
+            .main-title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .content-section {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+
+            .content-section h2 {
+                font-size: 1.8rem;
+            }
+
+            nav a {
+                font-size: 0.8rem;
+                padding: 8px 10px;
+                flex: 0 1 auto;
+                min-width: 70px;
+            }
+
+            .nav-container {
+                gap: 6px;
+            }
         }
     </style>
 </head>
 <body>
-    <header style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-        <h2 style="color: white;font-size: xxx-large;">施工中~</h2>
-        <img style="width: 100%;max-width: 600px;" src="bugcat.jpg">
+    <!-- 网格背景 -->
+    <div class="grid-bg"></div>
 
-    </header>
-
-    <nav style="padding: 10px;display: flex;justify-content: center;align-items: center;">
-        <div style="width:100%;max-width: 900px;justify-content: space-between; display: flex;gap: auto;">
-        <a href="#about">关于我们</a>
-        <a href="#presidents">历代社长</a>
-        <a href="#members">社员名单</a>
-        <a href="#contact">联系我们</a>
-    </div>
-    </nav>
+    <!-- 数据流背景 -->
+    <div class="data-streams" id="dataStreams"></div>
 
     <div class="container">
-        <section id="about">
-            <h2>关于我们</h2>
-            <p>浙江同济科技职业学院信息安全社团致力于提升学生的信息安全技能，推广网络安全意识。社团定期组织技术分享、攻防演练以及校外交流活动。</p>
+        <!-- 头部 -->
+        <header>
+            <div class="logo-container">
+                <img src="tkctfsvg0917.svg" class="logo-svg" alt="TKCTF Logo">
+            </div>
+            <h1 class="main-title title-fade-in">TKCTF</h1>
+            <p class="subtitle subtitle-fade-in">浙江同济科技职业学院信息安全社团</p>
+        </header>
+
+        <!-- 导航 -->
+        <nav>
+            <div class="nav-container">
+                <a href="#about">关于我们</a>
+                <a href="#presidents">历代社长</a>
+                <a href="#members">社员名单</a>
+                <a href="#teachers">指导老师</a>
+                <a href="#friends">校友</a>
+                <a href="#contact">联系我们</a>
+            </div>
+        </nav>
+
+        <!-- 关于我们 -->
+        <section id="about" class="content-section">
+            <h2 class="about-title">关于我们</h2>
+            <p class="about-content">浙江同济科技职业学院信息安全社团（TKCTF）成立于2020年，致力于提升学生的信息安全技能，推广网络安全意识。</p>
+            <p class="about-content">社团定期组织技术分享、CTF竞赛训练、攻防演练以及校外交流活动，培养具备实战能力的网络安全人才。</p>
+            <p class="about-content">我们的使命是在校园内营造良好的信息安全学习氛围，通过理论学习与实践训练相结合的方式，帮助社员掌握扎实的网络安全技能，为国家网络安全事业培养后备力量。</p>
         </section>
 
-        <section id="presidents">
-            <h2>历代社长</h2>
-            <ul>
-                <li>
-                    <strong>2023届社长:</strong> 戴源志、沈俊亦
-                    <p>主要成就：参加首次教育攻防演练，攻防方面社团排名提升至全省前十。</p>
-                </li>
-                <li>
-                    <strong>2022届社长:</strong> 郝光彩
-                    <p>主要成就：搭建<a href="https://club.tkctf.top/">CTF训练平台</a>，促进社员技术成长。</p>
-                </li>
-                <li>
-                    <strong>2021届社长:</strong> ?
-                    <p>主要成就：建立社团</p>
-                </li>
+        <!-- 历代社长 -->
+        <section id="presidents" class="content-section">
+            <h2>历代社长编年史</h2>
 
-            </ul>
+            <div class="president-item">
+                <div class="president-year">2020届社长</div>
+                <div class="president-names">???（有待考证）</div>
+                <div class="achievements">主要成就：2020年9月社团注册建立</div>
+            </div>
+
+            <div class="president-item">
+                <div class="president-year">2021届社长</div>
+                <div class="president-names">胡侃、尹安江、戴露凝</div>
+                <div class="achievements">主要成就：开始筹划信息安全相关赛事</div>
+            </div>
+
+            <div class="president-item">
+                <div class="president-year">2022届社长</div>
+                <div class="president-names">郝光彩</div>
+                <div class="achievements">主要成就：开发搭建<a href="https://club.tkctf.top" target="_blank">TKCTF赛题实训平台</a>、<a href="https://2025.tkctf.top" target="_blank">网络攻防竞赛平台</a>、<a href="https://wj.tkctf.top" target="_blank">信息安全意识问卷调查平台</a>，开创信息安全技术应用专业校级对外学术科普类竞赛模式，获2023-2024年度学术科技类优秀社团称号。</div>
+            </div>
+
+            <div class="president-item">
+                <div class="president-year">2023届社长</div>
+                <div class="president-names">戴源志、沈俊亦</div>
+                <div class="achievements">主要成就：推行CTF周周练训练模式，并行开创ACM相关赛事培训，<a href="https://acm.tkctf.top" target="_blank">ACM实训平台</a>得到落地，并参加首次教育攻防演练，攻防方面社团排名提升至全省前十，获2023-2025年度学术科技类优秀社团称号。</div>
+            </div>
+
+            <div class="president-item">
+                <div class="president-year">2024届社长</div>
+                <div class="president-names">黄之美、陈思绮、林俊忠</div>
+                <div class="achievements">主要成就：未完待续...</div>
+            </div>
         </section>
 
-        <section id="members">
+        <!-- 社员名单 -->
+        <section id="members" class="content-section">
             <h2>社员名单（排名不分先后）</h2>
-            <ul>
-                <li><strong>2024届:</strong> 陈思绮、黄之美、黄辅运、何文翰、张荣刚、许顺瑞、张焰、邱雪芸、温翔、王嘉骏、励成凯、戴昊坤、刘晨烨、吴联琪、孟翔天、严宇翔、赵佳鑫、陈昕佳</li>
-                <li><strong>2023届:</strong> 戴源志、沈俊亦、田润虎、闫新瑞、何佳桐、高逸城、郑亮、赵常学、鲍安、吴程扬、阮芃达</li>
-                <li><strong>2022届:</strong> 郝光彩、吴展望、钟方宇、何源、管景毅、王坤、任阳辉、严颖</li>
-                <li><strong>2021届:</strong> 胡侃、尹安江</li>
-            </ul>
+
+            <div class="member-group">
+                <div class="member-year">2025届</div>
+                <div class="member-list">（待补充）</div>
+            </div>
+
+            <div class="member-group">
+                <div class="member-year">2024届</div>
+                <div class="member-list">陈思绮、黄之美、黄辅运、何文翰、张荣刚、许顺瑞、张焰、邱雪芸、温翔、王嘉骏、励成凯、戴昊坤、刘晨烨、吴联琪、孟翔天、严宇翔、赵佳鑫、陈昕佳</div>
+            </div>
+
+            <div class="member-group">
+                <div class="member-year">2023届</div>
+                <div class="member-list">戴源志、沈俊亦、田润虎、闫新瑞、何佳桐、高逸城、郑亮、赵常学、鲍安、吴程扬、阮芃达</div>
+            </div>
+
+            <div class="member-group">
+                <div class="member-year">2022届</div>
+                <div class="member-list">郝光彩、吴展望、钟方宇、何源、管景毅、王坤、任阳辉、严颖、金心怡</div>
+            </div>
+
+            <div class="member-group">
+                <div class="member-year">2021届</div>
+                <div class="member-list">胡侃、尹安江、戴露凝</div>
+            </div>
         </section>
-        <section id="teachers">
+
+        <!-- 指导老师 -->
+        <section id="teachers" class="content-section">
             <h2>指导老师</h2>
-            <ul>
-                <li>李桂香、卢雪峰、傅继晗</li>
-            </ul>
+            <p>李桂香、卢雪峰、傅继晗</p>
         </section>
-        <section id="friends">
+
+        <!-- 校友 -->
+        <section id="friends" class="content-section">
             <h2>校友</h2>
-            <ul>
-                <a href="https://www.huaier-ashgrey.top/">Ashgrey</a>
-            </ul>
+            <p><a href="https://www.huaier-ashgrey.top/" target="_blank">Ashgrey</a></p>
         </section>
-        <section id="contact">
+
+        <!-- 联系我们 -->
+        <section id="contact" class="content-section">
             <h2>联系我们</h2>
-            <p>地址：浙江省杭州市萧山区宁围街道耕文路418号浙江同济科技职业学院图书楼405-2</p>
-            <p>邮箱：fujh@zjtongji.edu.cn</p>
-            <p>电话：+86-0571-83866845</p>
+            <div class="contact-item">
+                <span class="contact-icon">📍</span>
+                <span>地址：浙江省杭州市萧山区宁围街道耕文路418号浙江同济科技职业学院图书楼405-2</span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">📧</span>
+                <span>邮箱：fujh@zjtongji.edu.cn</span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">📞</span>
+                <span>电话：+86-0571-83866845</span>
+            </div>
         </section>
     </div>
 
     <footer>
-        <p>&copy; 2025 浙江同济科技职业学院信息安全社团. 版权所有。</p>
+        <p>&copy; 2025 浙江同济科技职业学院信息安全社团 TKCTF. <br>版权所有</p>
     </footer>
+
+    <script>
+        // 创建数据流系统
+        function createDataStreams() {
+            const container = document.getElementById('dataStreams');
+            const streamCount = 25;
+
+            // 数据流内容数组
+            const dataTypes = [
+                '0x4D5A90000300000004000000FFFF0000B800000000000000400000',
+                'GET /api/security HTTP/1.1',
+                'POST /login HTTP/1.1\nContent-Type: application/json',
+                'Connection: keep-alive\nAuthorization: Bearer eyJ0eXAi',
+                'SELECT * FROM users WHERE id = ?',
+                'UNION SELECT username,password FROM admin',
+                'INSERT INTO logs (timestamp, event) VALUES',
+                '#!/bin/bash\necho "Scanning network..."',
+                'nmap -sS -O target.com',
+                'hydra -l admin -P passwords.txt ssh://target',
+                'john --wordlist=rockyou.txt hash.txt',
+                'sqlmap -u "http://target.com/login.php"',
+                'python3 exploit.py --target 192.168.1.100',
+                'nc -lvnp 4444',
+                'msfconsole -q -x "use exploit/multi/handler"',
+                'curl -X POST -d "username=admin&password=123"',
+                'wireshark -i eth0 -f "tcp port 80"',
+                'tcpdump -i any -w capture.pcap',
+                'openssl s_client -connect target.com:443',
+                'ssh-keygen -t rsa -b 4096',
+                'gpg --gen-key --default-new-key-algo rsa4096',
+                'hashcat -a 0 -m 1000 hashes.txt wordlist.txt',
+                'aircrack-ng -w wordlist.txt capture.cap',
+                'dirb http://target.com/ /usr/share/wordlists/',
+                'gobuster dir -u http://target.com -w wordlist.txt'
+            ];
+
+            for (let i = 0; i < streamCount; i++) {
+                const stream = document.createElement('div');
+                stream.className = 'data-stream';
+
+                const randomData = dataTypes[Math.floor(Math.random() * dataTypes.length)];
+                stream.textContent = randomData;
+
+                const startX = Math.random() * window.innerWidth;
+                const driftX = (Math.random() - 0.5) * 100;
+                const delay = Math.random() * 8;
+
+                stream.style.left = startX + 'px';
+                stream.style.setProperty('--drift-x', driftX + 'px');
+                stream.style.animationDelay = `-${delay}s`;
+
+                container.appendChild(stream);
+            }
+
+            // 创建二进制数据流
+            createBinaryStreams();
+        }
+
+        // 创建二进制数据流
+        function createBinaryStreams() {
+            const container = document.getElementById('dataStreams');
+            const binaryCount = 8;
+
+            for (let i = 0; i < binaryCount; i++) {
+                const stream = document.createElement('div');
+                stream.className = 'binary-stream';
+
+                // 生成随机二进制字符串
+                let binaryString = '';
+                for (let j = 0; j < 80; j++) {
+                    binaryString += Math.random() > 0.5 ? '1' : '0';
+                    if (j % 8 === 7) binaryString += ' ';
+                }
+                stream.textContent = binaryString;
+
+                const startY = Math.random() * window.innerHeight;
+                const delay = Math.random() * 20;
+
+                stream.style.top = startY + 'px';
+                stream.style.animationDelay = `-${delay}s`;
+
+                container.appendChild(stream);
+            }
+        }
+
+        // 平滑滚动
+        function smoothScroll(target) {
+            const element = document.querySelector(target);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // 为导航链接添加平滑滚动
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                smoothScroll(this.getAttribute('href'));
+            });
+        });
+
+        // 添加滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.content-section');
+            const windowHeight = window.innerHeight;
+
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createDataStreams();
+
+            // 设置初始状态
+            document.querySelectorAll('.content-section').forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(50px)';
+                element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            });
+
+            // 立即检查一次
+            animateOnScroll();
+        });
+
+        // 监听滚动事件
+        window.addEventListener('scroll', animateOnScroll);
+
+        // 响应式数据流数量调整
+        function adjustDataStreamCount() {
+            const container = document.getElementById('dataStreams');
+            const isMobile = window.innerWidth < 768;
+
+            if (isMobile && container.children.length > 20) {
+                // 移动端减少数据流数量以提升性能
+                container.innerHTML = '';
+                createDataStreams();
+                // 重新创建时减少数量
+                const streams = container.querySelectorAll('.data-stream');
+                for (let i = 15; i < streams.length; i++) {
+                    streams[i].remove();
+                }
+            } else if (!isMobile && container.children.length < 30) {
+                container.innerHTML = '';
+                createDataStreams();
+            }
+        }
+
+        window.addEventListener('resize', adjustDataStreamCount);
+    </script>
 </body>
 </html>
