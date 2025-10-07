@@ -1,0 +1,32 @@
+{
+  "name": "tkctf-website",
+  "version": "1.0.0",
+  "description": "TKCTF 浙江同济科技职业学院信息安全社团官网",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "esbuild": "^0.19.0",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.44.0"
+  },
+  "keywords": [
+    "tkctf",
+    "cybersecurity",
+    "website"
+  ],
+  "author": "TKCTF",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TKCTF/TKCTF.github.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TKCTF/TKCTF.github.io/issues"
+  },
+  "homepage": "https://github.com/TKCTF/TKCTF.github.io#readme"
+}
