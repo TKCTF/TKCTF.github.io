@@ -45,7 +45,7 @@ jobs:
           mkdir -p ./publish
           TZ='Asia/Shanghai' TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
           cat > ./publish/README.md << 'EOF'
-          # 🌐 TKCTF 官方网站自动发布目录
+          # 🌐 TKCTF 官方网站发布镜像目录
 
           **浙江同济科技职业学院信息安全社团官网**
 
@@ -58,6 +58,11 @@ jobs:
           > 本目录由 GitHub Actions 自动生成与发布  
           > © TKCTF Information Security Club
           EOF
+    
+      # 4️⃣ 创建镜像文件夹
+      - name: Keep publish folder in repo (optional)
+        run: |
+          cp -r ./publish ./_publish_snapshot
 
       # 5️⃣ 配置 GitHub Pages 环境
       - name: Setup Pages
