@@ -33,22 +33,22 @@
         },
         {
           "name": "郝光彩",
-          "roles": ["行政运营/技术/竞赛负责人", "CTF/攻防/问卷平台总监"],
+          "roles": ["行政运营/技术/竞赛负责人", "CTF/攻防/问卷平台研发总监"],
           "codeName": "郝彩彩/Xiao_Cai/彩少"
         },
         {
           "name": "吴展望",
-          "roles": ["技术负责人"],
+          "roles": ["技术负责人/攻防负责人"],
           "codeName": "虚靖/Xujing"
         },
         {
           "name": "何源",
-          "roles": ["技术负责人"],
+          "roles": ["技术负责人/攻防负责人"],
           "codeName": "Lqdud"
         },
         {
           "name": "王坤",
-          "roles": ["技术负责人"],
+          "roles": ["技术/竞赛负责人"],
           "codeName": "Xkuno/QT坤"
         },
         {
@@ -83,7 +83,7 @@
         },
         {
           "name": "沈俊亦",
-          "roles": ["技术负责人/ACM竞赛负责人", "ACM平台总监"],
+          "roles": ["技术负责人/ACM竞赛负责人", "ACM平台研发总监"],
           "codeName": "沈爷/PadorFelice"
         },
         {

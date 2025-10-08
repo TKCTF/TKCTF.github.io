@@ -27,7 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ 设置 Node.js 环境（你可以改成你项目使用的 Node 版本）
+      # 2️⃣ 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -39,17 +39,37 @@ jobs:
           npm install
           npm run build
 
-      # 4️⃣ 配置 GitHub Pages 环境
+      # 4️⃣ 生成 README.md 文件到 ./publish 目录
+      - name: Generate README.md
+        run: |
+          mkdir -p ./publish
+          TZ='Asia/Shanghai' TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+          cat > ./publish/README.md << 'EOF'
+          # 🌐 TKCTF 官方网站自动发布目录
+
+          **浙江同济科技职业学院信息安全社团官网**
+
+          ---
+          🕒 **最新构建时间：** '"$TIMESTAMP"' (UTC+8)
+
+          🚀 **访问官网：** [https://zjtongji.tkctf.top](https://zjtongji.tkctf.top)
+
+          ---
+          > 本目录由 GitHub Actions 自动生成与发布  
+          > © TKCTF Information Security Club
+          EOF
+
+      # 5️⃣ 配置 GitHub Pages 环境
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 5️⃣ 上传构建产物（publish 文件夹）
+      # 6️⃣ 上传构建产物（publish 文件夹）
       - name: Upload publish directory
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./publish
 
-      # 6️⃣ 部署到 GitHub Pages
+      # 7️⃣ 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

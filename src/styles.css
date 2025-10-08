@@ -35,6 +35,33 @@ body {
     animation: dataFlow 8s linear infinite;
 }
 
+/* 手机端数据流速度优化 */
+@media (max-width: 767px) {
+    .data-stream {
+        animation: dataFlowMobile 15s linear infinite; /* 手机端放慢到15秒 */
+    }
+    
+    .data-stream:nth-child(2n) {
+        animation: dataFlowMobile 18s linear infinite; /* 手机端变体1 */
+        animation-delay: -3s;
+    }
+    
+    .data-stream:nth-child(3n) {
+        animation: dataFlowMobile 20s linear infinite; /* 手机端变体2 */
+        animation-delay: -5s;
+    }
+    
+    .data-stream:nth-child(5n) {
+        animation: dataFlowMobile 22s linear infinite; /* 手机端变体3 */
+        animation-delay: -7s;
+    }
+    
+    .data-stream:nth-child(7n) {
+        animation: dataFlowMobile 25s linear infinite; /* 手机端变体4 */
+        animation-delay: -9s;
+    }
+}
+
 .data-stream:nth-child(2n) {
     color: #007acc;
     animation-duration: 10s;
@@ -73,6 +100,24 @@ body {
     }
     95% {
         opacity: 0.8;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20vh) translateX(var(--drift-x, 0px));
+    }
+}
+
+/* 手机端数据流动画 - 更慢更平滑 */
+@keyframes dataFlowMobile {
+    0% {
+        opacity: 0;
+        transform: translateY(100vh) translateX(0px);
+    }
+    8% {
+        opacity: 0.6; /* 手机端透明度降低 */
+    }
+    92% {
+        opacity: 0.6;
     }
     100% {
         opacity: 0;
@@ -1139,6 +1184,7 @@ a:hover {
     will-change: opacity, transform;
     backface-visibility: hidden;
     transform: translateZ(0);
+    z-index: -2; /* 设置为最顶层，避免被频谱影响 */
 }
 
 /* Footer动态边框效果 */
@@ -1146,6 +1192,51 @@ a:hover {
     transition: border-top-width 0.1s ease;
     border-top: 1px solid rgba(0, 228, 255, 0.3);
     border-bottom: 1px solid rgba(0, 228, 255, 0.3);
+}
+
+/* 科技蓝颗粒迸发效果 */
+.tech-particle-burst {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1001;
+    overflow: hidden;
+}
+
+.tech-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #00e4ff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #00e4ff, 0 0 12px rgba(0, 228, 255, 0.6);
+    animation: particleBurst 2.5s ease-out forwards;
+}
+
+@keyframes particleBurst {
+    0% {
+        opacity: 1;
+        transform: translateY(0) translateX(0) scale(1);
+    }
+    20% {
+        opacity: 0.9;
+        transform: translateY(-20px) translateX(var(--horizontal-offset, 0px)) scale(1.2);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateY(-60px) translateX(calc(var(--horizontal-offset, 0px) * 1.5)) scale(0.8);
+    }
+    80% {
+        opacity: 0.3;
+        transform: translateY(-120px) translateX(calc(var(--horizontal-offset, 0px) * 2)) scale(0.4);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-200px) translateX(calc(var(--horizontal-offset, 0px) * 2.5)) scale(0.1);
+    }
 }
 
 /* 卡片容器 */
@@ -1597,6 +1688,14 @@ footer {
     text-shadow: 0 0 3px rgba(0, 228, 255, 0.5);
 }
 
+/* 手机端二进制数字宽度调整 */
+@media (max-width: 767px) {
+    .spectrum-bar .binary-digits {
+        font-size: 14px; /* 从12px增加到14px */
+        letter-spacing: 2px; /* 增加字母间距 */
+    }
+}
+
 /* 频谱动画效果 */
 .spectrum-bar.active {
     background: linear-gradient(to top, 
@@ -1704,5 +1803,35 @@ footer {
     
     .back-to-top::before {
         font-size: 10px;
+    }
+}
+
+/* 彩蛋页面粒子效果 */
+.easter-egg-particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: easterEggParticleFloat 6s ease-out forwards;
+}
+
+@keyframes easterEggParticleFloat {
+    0% {
+        opacity: 0.8;
+        transform: translateY(0) translateX(0) scale(0.8);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(-30px) translateX(var(--horizontal-offset, 0)) scale(1);
+    }
+    40% {
+        opacity: 0.8;
+        transform: translateY(-80px) translateX(var(--horizontal-offset, 0)) scale(0.9);
+    }
+    70% {
+        opacity: 0.4;
+        transform: translateY(-150px) translateX(var(--horizontal-offset, 0)) scale(0.7);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-250px) translateX(var(--horizontal-offset, 0)) scale(0.3);
     }
 }

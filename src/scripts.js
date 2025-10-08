@@ -2,7 +2,7 @@
 function createDataStreams() {
     const container = document.getElementById('dataStreams');
     const isMobile = window.innerWidth < 768;
-    const streamCount = isMobile ? 6 : 20;
+    const streamCount = isMobile ? 4 : 20; // 手机端进一步减少到4个
 
     // 数据流内容数组
     const dataTypes = [
@@ -163,7 +163,12 @@ function createDataStreams() {
 // 创建二进制数据流
 function createBinaryStreams() {
     const container = document.getElementById('dataStreams');
-    const binaryCount = 8;
+    
+    // 检测是否为移动端
+    const isMobile = window.innerWidth < 768;
+    
+    // 根据设备类型调整数量
+    const binaryCount = isMobile ? Math.floor(8 * 0.2) : 8; // 手机端减少到20%
 
     for (let i = 0; i < binaryCount; i++) {
         const stream = document.createElement('div');
@@ -226,12 +231,11 @@ function animateOnScroll() {
     const selectors = isMobile ? [
         '.president-item',
         '.president-members',
-        '.role-tag',
-        '.code-name'
+        '#friendsList'  
     ] : [
         '.president-item',
         '.contact-item',
-        '#friendsList',  // 改为ID选择器
+        '#friendsList',  
         '.president-members',
         '.member-row',
         '.role-tag',
@@ -460,9 +464,17 @@ function renderPresidents(presidentsData) {
                     roleTag.textContent = role;
                     
                     // 设置初始状态
-                    roleTag.style.opacity = '0';
-                    roleTag.style.transform = 'translateY(30px)';
-                    roleTag.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    const isMobile = window.innerWidth < 768;
+                    if (isMobile) {
+                        // 手机端直接显示，不设置淡入动画
+                        roleTag.style.opacity = '1';
+                        roleTag.style.transform = 'translateY(0)';
+                        roleTag.style.transition = 'none';
+                    } else {
+                        roleTag.style.opacity = '0';
+                        roleTag.style.transform = 'translateY(30px)';
+                        roleTag.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    }
                     
                     // 如果是多负责人角色，为每个负责人标签都应用动态光流效果
                     if (isMultiRole(member.roles) && !isSpecialRole(role)) {
@@ -484,9 +496,17 @@ function renderPresidents(presidentsData) {
                 }
                 
                 // 设置初始状态
-                codeSpan.style.opacity = '0';
-                codeSpan.style.transform = 'translateY(30px)';
-                codeSpan.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                const isMobile = window.innerWidth < 768;
+                if (isMobile) {
+                    // 手机端直接显示，不设置淡入动画
+                    codeSpan.style.opacity = '1';
+                    codeSpan.style.transform = 'translateY(0)';
+                    codeSpan.style.transition = 'none';
+                } else {
+                    codeSpan.style.opacity = '0';
+                    codeSpan.style.transform = 'translateY(30px)';
+                    codeSpan.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                }
                 
                 memberRow.appendChild(codeSpan);
                 
@@ -567,9 +587,8 @@ function startTypewriterEffect(element, codeName) {
     let isTyping = true;
     let currentText = '';
     
-    // 检测设备类型设置不同的等待时间
     const isMobile = window.innerWidth < 768;
-    const waitTime = isMobile ? 6000 : 3000; // 手机端6秒，桌面端3秒
+    const waitTime = isMobile ? 6000 : 2500; // 手机端6秒，桌面端3秒
     
     function typeText() {
         const targetText = codeNames[currentIndex].trim();
@@ -609,7 +628,7 @@ function startTypewriterEffect(element, codeName) {
 // 检查是否为特殊补充身份
 function isSpecialRole(role) {
     const roleLower = role.toLowerCase();
-    return roleLower.includes('平台总监') || roleLower.includes('社团新晋指导老师');
+    return roleLower.includes('研发总监') || roleLower.includes('社团新晋指导老师');
 }
 
 // 获取负责人身份对应的CSS类
@@ -644,7 +663,7 @@ function getResponsibleRoleClass(role) {
 function getSpecialRoleClass(role) {
     const roleLower = role.toLowerCase();
     
-    if (roleLower.includes('平台总监')) {
+    if (roleLower.includes('研发总监')) {
         return 'director';
     }
     
@@ -732,6 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
     createDataStreams();
 
     // 设置所有元素的初始状态
+    const isMobile = window.innerWidth < 768;
     const selectors = [
         '.content-section',
         '.president-item',
@@ -747,9 +767,16 @@ document.addEventListener('DOMContentLoaded', function() {
     selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
-        element.style.opacity = '0';
-            element.style.transform = 'translateY(30px)';
-            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            // 手机端tag和codename直接显示，不设置淡入动画
+            if (isMobile && (selector === '.role-tag' || selector === '.code-name')) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+                element.style.transition = 'none';
+            } else {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            }
         });
     });
 
@@ -779,7 +806,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     
-    // 显示设备类型和所需计数
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const requiredCount = isTouchDevice ? 20 : 150;
 });
@@ -810,13 +836,16 @@ let isEasterEggActive = false;
 let bounceCount = 0;
 let currentBounceHeight = 1;
 let isBouncing = false;
-let hasResetBounce = false; // 标记是否已经重置过弹动
+let hasResetBounce = false;
+
+// 科技蓝颗粒迸发效果相关变量
+let lastBurstTime = 0;
+const burstCooldown = 2000; // 2秒冷却时间
 
 function handleEasterEggScroll() {
     const footer = document.getElementById('mainFooter');
     if (!footer || isEasterEggActive) return;
 
-    // 检查BGM是否播放
     const audio = document.getElementById('bgmAudio');
     if (!audio || audio.paused) return;
 
@@ -825,8 +854,6 @@ function handleEasterEggScroll() {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
 
-    // 检测是否完全滚动到底部（滚动条完全置于底部）
-    // 只有当页面完全滚动到底部，且footer完全可见时才开始触发
     const isAtBottom = scrollTop + windowHeight >= documentHeight - 1; // 允许1px的误差
     const isFooterFullyVisible = scrollTop + windowHeight >= footerTop + footer.offsetHeight;
 
@@ -836,12 +863,33 @@ function handleEasterEggScroll() {
     }
 }
 
+function isAtBottomEnhanced() {
+    const footer = document.getElementById('mainFooter');
+    if (!footer) return false;
+    
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const footerTop = footer.offsetTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (isTouchDevice) {
+        const isAtBottom = scrollTop + windowHeight >= documentHeight - 20; // 允许20px误差
+        const isFooterVisible = scrollTop + windowHeight >= footerTop - 50; // footer可见即可，允许50px误差
+        return isAtBottom && isFooterVisible;
+    } else {
+        const isAtBottom = scrollTop + windowHeight >= documentHeight - 1;
+        const isFooterFullyVisible = scrollTop + windowHeight >= footerTop + footer.offsetHeight;
+        return isAtBottom && isFooterFullyVisible;
+    }
+}
+
 // 鼠标滚轮事件处理
 function handleWheelEvent(event) {
     const footer = document.getElementById('mainFooter');
     if (!footer) return;
     
-    // 检查BGM是否播放
     const audio = document.getElementById('bgmAudio');
     if (!audio || audio.paused) return;
     
@@ -850,27 +898,21 @@ function handleWheelEvent(event) {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
     
-    // 检测是否完全滚动到底部
     const isAtBottom = scrollTop + windowHeight >= documentHeight - 1;
     const isFooterFullyVisible = scrollTop + windowHeight >= footerTop + footer.offsetHeight;
     
-    // 只有在完全滚动到底部且footer完全可见时才处理
     if (isAtBottom && isFooterFullyVisible) {
         if (event.deltaY > 0) {
-            // 向下滚动 - 触发光芒效果
             if (!isEasterEggActive) {
                 event.preventDefault();
                 addBounceHeight(0);
             }
         } else if (event.deltaY < 0) {
-            // 向上滚动
             if (!isEasterEggActive) {
-                // 如果有计数，则清零并重置
                 if (bounceCount > 0) {
                     event.preventDefault();
                     resetBounceHeight();
                 }
-                // 不阻止后续的向上滚动，允许正常查看主界面内容
             } else {
                 event.preventDefault();
                 returnToMain();
@@ -915,16 +957,12 @@ function createParticles(intensity) {
     }
 }
 
-// 触发弹动效果
 function triggerBounceEffect() {
     if (isBouncing) return;
     isBouncing = true;
     
     // 创建粒子效果
     createParticles(1);
-    
-    // 创建底部光芒效果
-    createBottomGlow();
     
     setTimeout(() => {
         isBouncing = false;
@@ -936,78 +974,73 @@ function addBounceHeight(deltaY) {
     const footer = document.getElementById('mainFooter');
     if (!footer) return;
     
-    // 如果之前已经重置过，说明用户半途而废了，需要重新开始计数
     if (hasResetBounce) {
         bounceCount = 0;
         hasResetBounce = false;
     }
     
-    // 创建光芒效果并计数
-    createBottomGlow();
     bounceCount++;
     
-    // 检测是否为触屏设备
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const requiredCount = isTouchDevice ? 20 : 150;
     
     
-    // 根据设备类型设置不同的触发阈值
     if (bounceCount >= requiredCount) {
         triggerEasterEgg();
     } else {
-        // 当计数接近完成时，显示持续光芒效果
         const progressRatio = bounceCount / requiredCount;
-        if (progressRatio >= 0.8) {
+        if (progressRatio >= 0.01) {
             createPersistentGlow();
         }
     }
 }
 
-// 重置弹动高度
 function resetBounceHeight() {
     const footer = document.getElementById('mainFooter');
     if (!footer) return;
     
-    // 重置到默认高度
     currentBounceHeight = 1;
     footer.style.borderTopWidth = '1px';
     
-    // 清零计数 - 半途而废重新开始
     bounceCount = 0;
     hasResetBounce = true;
     
-    // 清理所有光芒效果
-    const existingGlows = document.querySelectorAll('.bottom-glow, .persistent-glow');
+    const existingGlows = document.querySelectorAll('.persistent-glow');
     existingGlows.forEach(glow => glow.remove());
     
+    const dataStreams = document.getElementById('dataStreams');
+    if (dataStreams) {
+        dataStreams.style.transition = 'opacity 1s ease-in';
+        dataStreams.style.opacity = '1';
+    }
 }
 
-// 创建底部光芒效果
-function createBottomGlow() {
-    const glow = document.createElement('div');
-    glow.className = 'bottom-glow';
-    
-    // 检测是否为移动端
-    const isMobile = window.innerWidth < 768;
 
-    // 计算光芒高度 - 根据计数累加
+function createPersistentGlow() {
+    const existingGlow = document.getElementById('persistentGlow');
+    if (existingGlow) {
+        updatePersistentGlow(existingGlow);
+        return;
+    }
+    
+    const glow = document.createElement('div');
+    glow.id = 'persistentGlow';
+    glow.className = 'persistent-glow';
+    
+    const isMobile = window.innerWidth < 768;
+    
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const requiredCount = isTouchDevice ? 20 : 150;
     const progressRatio = Math.min(bounceCount / requiredCount, 1);
     
-    // 基础高度
     const baseHeight = isMobile ? 15 : 20;
-    // 最大高度 - 完全覆盖Footer
-    const maxHeight = isMobile ? 135 : 135;
-    // 当前高度 - 根据进度计算
+    const maxHeight = isMobile ? 135 : 135; // 和Footer一样高
     const currentHeight = baseHeight + (maxHeight - baseHeight) * progressRatio;
     
-    // 计算透明度 - 随着高度增加而增强
-    const baseOpacity = isMobile ? 0.5 : 0.6;
+    const baseOpacity = isMobile ? 0.4 : 0.6;
     const maxOpacity = 0.9;
     const currentOpacity = baseOpacity + (maxOpacity - baseOpacity) * progressRatio;
     
-    // 设置样式 - 性能优化
     glow.style.cssText = `
         position: fixed;
         bottom: 0;
@@ -1017,65 +1050,39 @@ function createBottomGlow() {
         background: linear-gradient(to top, rgba(0, 228, 255, ${currentOpacity}), transparent);
         z-index: 1000;
         will-change: opacity, transform;
-        animation: glowPulse 0.5s ease-out;
-        pointer-events: none;
-    `;
-    
-    document.body.appendChild(glow);
-    
-    // 动画结束后移除元素
-    setTimeout(() => {
-        if (glow.parentNode) {
-            glow.parentNode.removeChild(glow);
-        }
-    }, 500);
-    
-}
-
-// 创建持续光芒效果（接近完成时）
-function createPersistentGlow() {
-    // 移除之前的持续光芒
-    const existingGlow = document.getElementById('persistentGlow');
-    if (existingGlow) {
-        existingGlow.remove();
-    }
-    
-    const glow = document.createElement('div');
-    glow.id = 'persistentGlow';
-    glow.className = 'persistent-glow';
-    
-    // 检测是否为移动端
-    const isMobile = window.innerWidth < 768;
-    
-    // 计算光芒高度 - 接近完成时更高
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const requiredCount = isTouchDevice ? 20 : 150;
-    const progressRatio = Math.min(bounceCount / requiredCount, 1);
-    
-    const baseHeight = isMobile ? 15 : 20;
-    const maxHeight = isMobile ? 60 : 80;
-    const currentHeight = baseHeight + (maxHeight - baseHeight) * progressRatio;
-    
-    const baseOpacity = isMobile ? 0.4 : 0.6;
-    const maxOpacity = 0.9;
-    const currentOpacity = baseOpacity + (maxOpacity - baseOpacity) * progressRatio;
-    
-    // 设置样式
-    glow.style.cssText = `
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: ${currentHeight}px;
-        background: linear-gradient(to top, rgba(0, 228, 255, ${currentOpacity}), transparent);
-        z-index: 999;
-        will-change: opacity, transform;
         animation: persistentGlow 2s ease-in-out infinite;
         pointer-events: none;
     `;
     
     document.body.appendChild(glow);
     
+    // 手机端：隐藏data-streams以节省性能
+    if (isMobile) {
+        const dataStreams = document.getElementById('dataStreams');
+        if (dataStreams) {
+            dataStreams.style.transition = 'opacity 1s ease-out';
+            dataStreams.style.opacity = '0';
+        }
+    }
+}
+
+function updatePersistentGlow(glow) {
+    const isMobile = window.innerWidth < 768;
+    
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const requiredCount = isTouchDevice ? 20 : 150;
+    const progressRatio = Math.min(bounceCount / requiredCount, 1);
+    
+    const baseHeight = isMobile ? 15 : 20;
+    const maxHeight = isMobile ? 135 : 135; // 和Footer一样高
+    const currentHeight = baseHeight + (maxHeight - baseHeight) * progressRatio;
+    
+    const baseOpacity = isMobile ? 0.4 : 0.6;
+    const maxOpacity = 0.9;
+    const currentOpacity = baseOpacity + (maxOpacity - baseOpacity) * progressRatio;
+    
+    glow.style.height = `${currentHeight}px`;
+    glow.style.background = `linear-gradient(to top, rgba(0, 228, 255, ${currentOpacity}), transparent)`;
 }
 
 function triggerEasterEgg() {
@@ -1089,12 +1096,25 @@ function triggerEasterEgg() {
         footer.style.display = 'none';
     }
 
+    const persistentGlow = document.getElementById('persistentGlow');
+    if (persistentGlow) {
+        persistentGlow.style.display = 'none';
+    }
+
+    // 恢复data-streams显示
+    const dataStreams = document.getElementById('dataStreams');
+    if (dataStreams) {
+        dataStreams.style.transition = 'opacity 1s ease-in';
+        dataStreams.style.opacity = '1';
+    }
+
     loadCardContent();
 
     easterEgg.classList.add('show');
     
     easterEgg.scrollIntoView({ behavior: 'smooth' });
     
+    startEasterEggParticleEffect();
 }
 
 function getDecryptionKey() {
@@ -1188,9 +1208,8 @@ function returnToMain() {
     scrollCount = 0;
     bounceCount = 0;
     currentBounceHeight = 1;
-    hasResetBounce = false; // 重置弹动标记
+    hasResetBounce = false;
     
-    // 检测设备类型并显示重置信息
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const requiredCount = isTouchDevice ? 20 : 150;
     
@@ -1203,31 +1222,35 @@ function returnToMain() {
     
     easterEgg.classList.remove('show');
     
-    // 清理卡片内容
     const cardContent = document.getElementById('cardContent');
     if (cardContent) {
         cardContent.innerHTML = '';
     }
     
-    // 清理持续光芒效果
+    stopEasterEggParticleEffect();
+    
     const persistentGlow = document.getElementById('persistentGlow');
     if (persistentGlow) {
         persistentGlow.remove();
     }
     
-    // 显示Footer
+    // 恢复data-streams显示
+    const dataStreams = document.getElementById('dataStreams');
+    if (dataStreams) {
+        dataStreams.style.transition = 'opacity 1s ease-in';
+        dataStreams.style.opacity = '1';
+    }
+    
     if (footer) {
         footer.style.display = '';
         footer.style.borderTopWidth = '1px';
     }
     
-    // 滚动回主界面底部
     if (footer) {
         footer.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
-// 卡片点击事件
 function initCardInteraction() {
     const card = document.getElementById('card');
     if (!card) return;
@@ -1241,26 +1264,47 @@ function initCardInteraction() {
     });
 }
 
-// 恢复简单的滚动监听
 window.addEventListener('scroll', () => {
     handleBackToTop();
     animateOnScroll();
     handleEasterEggScroll();
+    
+    handleBottomScroll();
 });
 
-// 添加鼠标滚轮事件监听
+function handleBottomScroll() {
+    const footer = document.getElementById('mainFooter');
+    if (!footer || isEasterEggActive) return;
+
+    const audio = document.getElementById('bgmAudio');
+    if (!audio || audio.paused) return;
+    
+    if (isAtBottomEnhanced()) {
+        createTechParticleBurst();
+    }
+}
+
 window.addEventListener('wheel', handleWheelEvent, { passive: false });
 
-// 添加触摸事件支持（移动端）
 let touchStartY = 0;
 let touchEndY = 0;
+let touchStartTime = 0;
+let touchEndTime = 0;
+let isTouchScrolling = false;
 
 window.addEventListener('touchstart', function(event) {
     touchStartY = event.touches[0].clientY;
+    touchStartTime = Date.now();
+    isTouchScrolling = false;
+}, { passive: true });
+
+window.addEventListener('touchmove', function(event) {
+    isTouchScrolling = true;
 }, { passive: true });
 
 window.addEventListener('touchend', function(event) {
     touchEndY = event.changedTouches[0].clientY;
+    touchEndTime = Date.now();
     
     if (isEasterEggActive) {
         if (touchStartY < touchEndY) {
@@ -1269,35 +1313,37 @@ window.addEventListener('touchend', function(event) {
         return;
     }
     
-    // 检查BGM是否播放
     const audio = document.getElementById('bgmAudio');
     if (!audio || audio.paused) return;
     
     const footer = document.getElementById('mainFooter');
     if (!footer) return;
     
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const footerTop = footer.offsetTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
+    setTimeout(() => {
+        checkTouchEasterEgg();
+    }, 100);
+}, { passive: true });
+
+function checkTouchEasterEgg() {
+    const footer = document.getElementById('mainFooter');
+    if (!footer) return;
     
-    // 检测是否完全滚动到底部
-    const isAtBottom = scrollTop + windowHeight >= documentHeight - 1;
-    const isFooterFullyVisible = scrollTop + windowHeight >= footerTop + footer.offsetHeight;
+    const touchDistance = Math.abs(touchEndY - touchStartY);
+    const touchDuration = touchEndTime - touchStartTime;
     
-    // 只有在完全滚动到底部且footer完全可见时才处理
-    if (isAtBottom && isFooterFullyVisible) {
-        if (touchStartY > touchEndY) {
-            // 向下滑动 - 触发光芒效果
-            addBounceHeight(0);
-        } else if (touchStartY < touchEndY) {
-            // 向上滑动 - 如果有计数则清零
-            if (bounceCount > 0) {
-                resetBounceHeight();
-            }
+    if (touchStartY < touchEndY && touchDistance > 5 && touchDuration < 2000) {
+        if (bounceCount > 0) {
+            resetBounceHeight();
         }
     }
-}, { passive: true });
+    else if (isAtBottomEnhanced()) {
+        const minScrollDistance = window.innerHeight * 0.45;
+        
+        if (touchStartY > touchEndY && touchDistance > minScrollDistance && touchDuration < 500) {
+            addBounceHeight(0);
+        }
+    }
+}
 
 // 音频控制相关变量
 let isPlaying = false;
@@ -1307,6 +1353,11 @@ let dataArray = null;
 let spectrumBars = [];
 let beatDetectionBuffer = [];
 let lastBeatTime = 0;
+
+// Web Worker相关变量
+let spectrumWorker = null;
+let workerSpectrumData = null;
+let isWorkerSupported = false;
 
 // Logo相关变量
 let svgElement = null;
@@ -1339,9 +1390,77 @@ function initAudioContext() {
         source.connect(analyser);
         analyser.connect(audioContext.destination);
         
+        // 初始化Web Worker
+        initSpectrumWorker();
+        
         return true;
     } catch (error) {
         return false;
+    }
+}
+
+// 初始化Web Worker
+function initSpectrumWorker() {
+    if (!window.Worker) {
+        console.warn('Web Worker not supported, falling back to main thread');
+        isWorkerSupported = false;
+        return;
+    }
+    
+    try {
+        // 根据当前环境选择Worker路径
+        const workerPath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? './src/spectrum-worker.js' 
+            : './src/spectrum-worker.js';
+        
+        spectrumWorker = new Worker(workerPath);
+        isWorkerSupported = true;
+        
+        spectrumWorker.onmessage = function(e) {
+            const { type, data } = e.data;
+            
+            switch (type) {
+                case 'initComplete':
+                    // 发送配置给Worker
+                    spectrumWorker.postMessage({
+                        type: 'config',
+                        data: {
+                            fftSize: analyser.fftSize,
+                            sampleRate: audioContext.sampleRate,
+                            beatThreshold: 188,
+                            beatCooldown: 25,
+                            heavyBeatCooldown: 120
+                        }
+                    });
+                    break;
+                case 'processedSpectrumData':
+                    workerSpectrumData = data;
+                    break;
+                case 'error':
+                    console.error('Spectrum worker error:', data);
+                    break;
+                case 'workerStopped':
+                    break;
+            }
+        };
+        
+        spectrumWorker.onerror = function(error) {
+            console.error('Spectrum worker error:', error);
+            isWorkerSupported = false;
+        };
+        
+        // 初始化worker
+        spectrumWorker.postMessage({
+            type: 'init',
+            data: {
+                fftSize: analyser.fftSize,
+                sampleRate: audioContext.sampleRate
+            }
+        });
+        
+    } catch (error) {
+        console.error('Failed to create spectrum worker:', error);
+        isWorkerSupported = false;
     }
 }
 
@@ -1490,7 +1609,7 @@ function createBeatPulse(intensity) {
     ring.style.animation = 'beatPulse 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards';
     logoContainer.appendChild(ring);
     
-    setTimeout(() => ring.remove(), 220);
+    setTimeout(() => ring.remove(), 800);
 }
 
 // 创建声波光环（重beats专用）- 优化性能
@@ -1511,8 +1630,19 @@ function applyAudioDrivenGlitch() {
     if (!analyser || !dataArray || !isPlaying) return;
     
     analyser.getByteFrequencyData(dataArray);
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    const intensity = average / 255;
+    
+    let intensity = 0;
+    let spectralCentroid = 0;
+    
+    // 优先使用Web Worker的结果
+    if (isWorkerSupported && workerSpectrumData) {
+        intensity = workerSpectrumData.spectrumFeatures.totalEnergy;
+        spectralCentroid = workerSpectrumData.spectrumFeatures.spectralCentroid;
+    } else {
+        // 回退到主线程计算
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        intensity = average / 255;
+    }
 
     // 根据音频强度计算抖动参数 - 提高强度
     const baseShake = 5; // 基础抖动强度
@@ -1532,8 +1662,9 @@ function applyAudioDrivenGlitch() {
         const glowOpacity = 0.6 + intensity * 0.4;
         logo.style.filter = `drop-shadow(0 0 ${glowIntensity}px rgba(0, 162, 255, ${glowOpacity}))`;
         
-        // 降低拖影触发阈值，增加触发概率
-        if (intensity > 0.25 && Math.random() > 0.75) {
+        // 使用频谱重心来调整拖影触发
+        const trailThreshold = spectralCentroid > 0.5 ? 0.2 : 0.25;
+        if (intensity > trailThreshold && Math.random() > 0.75) {
             createTrail(rotation);
         }
     }
@@ -1574,7 +1705,7 @@ function detectBeat() {
     return false;
 }
 
-// 检测重beats（基于频谱20-25%区域的激活状态）
+// 检测重beats（基于频谱20-25%区域的active状态）
 function detectHeavyBeat() {
     if (!spectrumBars.length) return false;
     
@@ -1582,8 +1713,8 @@ function detectHeavyBeat() {
     
     // 计算20-25%区域的频谱条索引范围
     const totalBars = spectrumBars.length;
-    const startIndex = Math.floor(totalBars * 0.20);
-    const endIndex = Math.floor(totalBars * 0.25);
+    const startIndex = Math.floor(totalBars * 0.25);
+    const endIndex = Math.floor(totalBars * 0.45);
     const targetBars = spectrumBars.slice(startIndex, endIndex);
     
     // 统计激活状态的频谱条数量
@@ -1594,26 +1725,26 @@ function detectHeavyBeat() {
         }
     });
     
-    // 降低阈值：需要至少1/2的频谱条激活（提高灵敏度）
-    const requiredActiveBars = Math.max(1, Math.ceil(targetBars.length / 2));
+    // 需要至少3/5的频谱条激活（提高灵敏度）
+    const requiredActiveBars = Math.max(1, Math.ceil(targetBars.length * 9 / 10));
     const isHeavyBeat = activeBars >= requiredActiveBars;
     
-    // 记录激活状态到缓冲区，延长检测窗口到20ms
+    // 记录激活状态到缓冲区，延长检测窗口到100ms
     heavyBeatBuffer.push({
         time: currentTime,
         isActive: isHeavyBeat
     });
     
-    // 清理20ms以前的记录
+    // 清理100ms以前的记录
     heavyBeatBuffer = heavyBeatBuffer.filter(record => 
-        currentTime - record.time <= 20
+        currentTime - record.time <= 100
     );
     
-    // 检查20ms内是否有重beats
+    // 检查100ms内是否有重beats
     const recentHeavyBeats = heavyBeatBuffer.filter(record => record.isActive);
     
-    // 缩短重beats间隔到120ms，提高触发频率
-    if (recentHeavyBeats.length > 0 && (currentTime - lastHeavyBeatTime) > 120) {
+    // 缩短重beats间隔到200ms，提高触发频率
+    if (recentHeavyBeats.length > 0 && (currentTime - lastHeavyBeatTime) > 300) {
         lastHeavyBeatTime = currentTime;
         return true;
     }
@@ -1636,7 +1767,20 @@ function updateProgress() {
 // 创建二进制频谱
 function createBinarySpectrum() {
     const spectrumContainer = document.getElementById('binarySpectrum');
-    const barCount = Math.floor(window.innerWidth / 12); // 从4改为12，降低密度
+    
+    const isMobile = window.innerWidth < 768;
+    
+    // 根据设备类型调整频谱数量和宽度
+    let barCount, barWidth;
+    if (isMobile) {
+        // 手机模式：数量减少到1/2，宽度扩大到2倍
+        barCount = Math.floor(window.innerWidth / 24); // 从12改为24，减少数量
+        barWidth = 16; // 从8px改为16px，扩大宽度
+    } else {
+        // 桌面模式：保持原有设置
+        barCount = Math.floor(window.innerWidth / 12);
+        barWidth = 8;
+    }
     
     spectrumContainer.innerHTML = '';
     spectrumBars = [];
@@ -1646,20 +1790,24 @@ function createBinarySpectrum() {
         bar.className = 'spectrum-bar';
         bar.style.left = (i * (100 / barCount)) + '%';
         bar.style.height = '0px'; // 初始高度为0
+        bar.style.width = barWidth + 'px'; // 设置频谱条宽度
         
-        // 创建二进制数字容器
-        const binaryDigits = document.createElement('div');
-        binaryDigits.className = 'binary-digits';
-        
-        // 生成随机二进制字符串
-        let binaryString = '';
-        const digitCount = Math.floor(Math.random() * 12) + 8; // 增加数字数量
-        for (let j = 0; j < digitCount; j++) {
-            binaryString += Math.random() > 0.5 ? '1' : '0';
+        // 手机端：不创建二进制数字容器以节省性能
+        if (!isMobile) {
+            // 创建二进制数字容器
+            const binaryDigits = document.createElement('div');
+            binaryDigits.className = 'binary-digits';
+            
+            // 生成随机二进制字符串
+            let binaryString = '';
+            const digitCount = Math.floor(Math.random() * 12) + 8; // 增加数字数量
+            for (let j = 0; j < digitCount; j++) {
+                binaryString += Math.random() > 0.5 ? '1' : '0';
+            }
+            binaryDigits.textContent = binaryString;
+            
+            bar.appendChild(binaryDigits);
         }
-        binaryDigits.textContent = binaryString;
-        
-        bar.appendChild(binaryDigits);
         spectrumContainer.appendChild(bar);
         spectrumBars.push(bar);
     }
@@ -1674,6 +1822,14 @@ function createAudioVisualEffects() {
     }
     
     analyser.getByteFrequencyData(dataArray);
+    
+    // 发送数据给Web Worker处理
+    if (isWorkerSupported && spectrumWorker) {
+        spectrumWorker.postMessage({
+            type: 'spectrumData',
+            data: Array.from(dataArray)
+        });
+    }
     
     const sampleRate = audioContext.sampleRate;
     const dataStreams = document.getElementById('dataStreams');
@@ -1741,18 +1897,19 @@ function createAudioVisualEffects() {
             logoContainer.classList.remove('activity');
         }, 400);
         
-        // 数据流beat效果
-        dataStreams.classList.remove('glitch-subtle');
-        dataStreams.classList.add('glitch-beat');
-        
-        
-        // 0.25秒后恢复基础抖动
-        setTimeout(() => {
-            if (isPlaying) {
-                dataStreams.classList.remove('glitch-beat');
-                dataStreams.classList.add('glitch-subtle');
-            }
-        }, 250);
+        // 数据流beat效果 - 手机端禁用
+        if (!isMobile) {
+            dataStreams.classList.remove('glitch-subtle');
+            dataStreams.classList.add('glitch-beat');
+            
+            // 0.25秒后恢复基础抖动
+            setTimeout(() => {
+                if (isPlaying) {
+                    dataStreams.classList.remove('glitch-beat');
+                    dataStreams.classList.add('glitch-subtle');
+                }
+            }, 250);
+        }
     }
     
     // 应用音频驱动的持续抖动效果
@@ -1767,6 +1924,74 @@ function createAudioVisualEffects() {
     // 继续动画循环 - 只在播放时继续
     if (isPlaying) {
         requestAnimationFrame(createAudioVisualEffects);
+    }
+}
+
+// 基于Web Worker结果的频谱更新
+function updateBinarySpectrumFromWorker(dataArray, workerData) {
+    if (!spectrumBars.length) return;
+    
+    const barCount = spectrumBars.length;
+    const usableDataLength = Math.floor(dataArray.length * 0.85);
+    const dataStep = Math.floor(usableDataLength / barCount);
+    
+    // 使用Web Worker计算的频段能量
+    const bandEnergies = workerData.spectrumFeatures.bandEnergies;
+    
+    for (let i = 0; i < barCount; i++) {
+        const dataIndex = i * dataStep;
+        const value = dataArray[dataIndex] || 0;
+        
+        // 根据频段位置选择对应的能量值
+        let bandEnergy = 0;
+        const position = i / barCount;
+        
+        if (position < 0.2) {
+            bandEnergy = bandEnergies.low;
+        } else if (position < 0.4) {
+            bandEnergy = bandEnergies.midLow;
+        } else if (position < 0.6) {
+            bandEnergy = bandEnergies.mid;
+        } else if (position < 0.8) {
+            bandEnergy = bandEnergies.midHigh;
+        } else {
+            bandEnergy = bandEnergies.high;
+        }
+        
+        // 结合原始数据和频段能量
+        const combinedValue = (value / 255) * 0.7 + bandEnergy * 0.3;
+        const height = Math.max(5, combinedValue * 100);
+        const bar = spectrumBars[i];
+        
+        bar.classList.remove('stopping');
+        bar.style.height = height + 'px';
+        
+        // 手机端：取消Bar高亮和二进制数字更新以节省性能
+        const isMobile = window.innerWidth < 768;
+        if (!isMobile) {
+            // 使用Web Worker的Beat检测结果和能量值
+            const isActive = workerData.beat.detected || workerData.heavyBeat.detected;
+            const energyThreshold = 100;
+            
+            if (isActive && value > energyThreshold) {
+                bar.classList.add('active');
+            } else if (value > 120) { // 即使没有Beat，高能量也激活
+                bar.classList.add('active');
+            } else {
+                bar.classList.remove('active');
+            }
+            
+            // 随机更新二进制数字
+            if (Math.random() > 0.92) {
+                const binaryDigits = bar.querySelector('.binary-digits');
+                let newBinary = '';
+                const digitCount = Math.floor(Math.random() * 12) + 8;
+                for (let j = 0; j < digitCount; j++) {
+                    newBinary += Math.random() > 0.5 ? '1' : '0';
+                }
+                binaryDigits.textContent = newBinary;
+            }
+        }
     }
 }
 
@@ -1789,22 +2014,26 @@ function updateBinarySpectrum(dataArray) {
         bar.classList.remove('stopping'); // 移除滑落类
         bar.style.height = height + 'px';
         
-        // 高能量时激活特效
-        if (value > 140) { // 降低阈值，更容易触发
-            bar.classList.add('active');
-        } else {
-            bar.classList.remove('active');
-        }
-        
-        // 随机更新二进制数字 (稍微提高更新频率)
-        if (Math.random() > 0.92) { // 从0.95改为0.92
-            const binaryDigits = bar.querySelector('.binary-digits');
-            let newBinary = '';
-            const digitCount = Math.floor(Math.random() * 12) + 8;
-            for (let j = 0; j < digitCount; j++) {
-                newBinary += Math.random() > 0.5 ? '1' : '0';
+        // 手机端：取消Bar高亮和二进制数字更新以节省性能
+        const isMobile = window.innerWidth < 768;
+        if (!isMobile) {
+            // 高能量时激活特效
+            if (value > 120) { // 降低阈值，更容易触发
+                bar.classList.add('active');
+            } else {
+                bar.classList.remove('active');
             }
-            binaryDigits.textContent = newBinary;
+            
+            // 随机更新二进制数字 (稍微提高更新频率)
+            if (Math.random() > 0.92) { // 从0.95改为0.92
+                const binaryDigits = bar.querySelector('.binary-digits');
+                let newBinary = '';
+                const digitCount = Math.floor(Math.random() * 12) + 8;
+                for (let j = 0; j < digitCount; j++) {
+                    newBinary += Math.random() > 0.5 ? '1' : '0';
+                }
+                binaryDigits.textContent = newBinary;
+            }
         }
     }
 }
@@ -1923,6 +2152,11 @@ function handleLogoClick() {
         // 延迟一帧后停止故障效果，确保动画循环已停止
         requestAnimationFrame(() => {
             stopGlitchEffect();
+            
+            // 停止Web Worker
+            if (isWorkerSupported && spectrumWorker) {
+                spectrumWorker.postMessage({ type: 'stop' });
+            }
         });
     }
 }
@@ -2056,3 +2290,170 @@ document.addEventListener('visibilitychange', function() {
         }, timeStep);
     }
 });
+
+// 创建科技蓝颗粒迸发效果
+function createTechParticleBurst() {
+    const currentTime = Date.now();
+    
+    // 防止重复触发和频繁触发
+    if (document.querySelector('.tech-particle-burst') || (currentTime - lastBurstTime) < burstCooldown) {
+        return;
+    }
+    
+    lastBurstTime = currentTime;
+    
+    const burstContainer = document.createElement('div');
+    burstContainer.className = 'tech-particle-burst';
+    document.body.appendChild(burstContainer);
+    
+    // 获取footer位置
+    const footer = document.getElementById('mainFooter');
+    const footerRect = footer.getBoundingClientRect();
+    const footerTop = footerRect.top;
+    const footerLeft = footerRect.left;
+    const footerWidth = footerRect.width;
+    
+    // 根据设备类型调整颗粒数量
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 12 : 18;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'tech-particle';
+        
+        // 随机位置（在footer上边框附近）
+        const randomX = footerLeft + Math.random() * footerWidth;
+        const randomY = footerTop + Math.random() * 8; // 在footer上边框8px范围内
+        
+        particle.style.left = randomX + 'px';
+        particle.style.top = randomY + 'px';
+        
+        // 随机延迟，创造更自然的迸发效果
+        particle.style.animationDelay = Math.random() * 0.4 + 's';
+        
+        // 随机大小变化
+        const size = 2 + Math.random() * 3; // 2-5px
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        
+        // 随机颜色变化（科技蓝的变体）
+        const colorVariations = [
+            '#00e4ff',
+            '#00a2ff', 
+            '#66ccff',
+            '#0099ff',
+            '#007acc',
+            '#4a90e2'
+        ];
+        const randomColor = colorVariations[Math.floor(Math.random() * colorVariations.length)];
+        particle.style.background = randomColor;
+        particle.style.boxShadow = `0 0 8px ${randomColor}, 0 0 16px ${randomColor}80`;
+        
+        // 随机水平偏移，增加迸发的自然感
+        const horizontalOffset = (Math.random() - 0.5) * 20;
+        particle.style.setProperty('--horizontal-offset', horizontalOffset + 'px');
+        
+        burstContainer.appendChild(particle);
+    }
+    
+    // 1.5秒后移除容器
+    setTimeout(() => {
+        if (burstContainer.parentNode) {
+            burstContainer.parentNode.removeChild(burstContainer);
+        }
+    }, 1500);
+}
+
+// 彩蛋页面持续粒子效果相关变量
+let easterEggParticleInterval = null;
+let easterEggParticleContainer = null;
+
+// 启动彩蛋页面的持续粒子游离效果
+function startEasterEggParticleEffect() {
+    // 如果已经在运行，先停止
+    stopEasterEggParticleEffect();
+    
+    // 创建粒子容器
+    easterEggParticleContainer = document.createElement('div');
+    easterEggParticleContainer.className = 'easter-egg-particle-container';
+    easterEggParticleContainer.style.cssText = `
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1002;
+        overflow: hidden;
+    `;
+    document.body.appendChild(easterEggParticleContainer);
+    
+    // 每0.8秒创建一个粒子，创造持续游离效果
+    easterEggParticleInterval = setInterval(() => {
+        createEasterEggParticle();
+    }, 800);
+}
+
+// 停止彩蛋页面的持续粒子迸发效果
+function stopEasterEggParticleEffect() {
+    if (easterEggParticleInterval) {
+        clearInterval(easterEggParticleInterval);
+        easterEggParticleInterval = null;
+    }
+    
+    if (easterEggParticleContainer) {
+        if (easterEggParticleContainer.parentNode) {
+            easterEggParticleContainer.parentNode.removeChild(easterEggParticleContainer);
+        }
+        easterEggParticleContainer = null;
+    }
+}
+
+// 创建彩蛋页面的单个粒子游离效果
+function createEasterEggParticle() {
+    if (!easterEggParticleContainer) return;
+    
+    const particle = document.createElement('div');
+    particle.className = 'easter-egg-particle';
+    
+    // 从底部随机位置开始
+    const randomX = Math.random() * window.innerWidth;
+    const randomY = window.innerHeight - Math.random() * 20; // 从底部20px范围内开始
+    
+    particle.style.left = randomX + 'px';
+    particle.style.top = randomY + 'px';
+    
+    // 设置水平偏移
+    const horizontalOffset = (Math.random() - 0.5) * 40; // -20px 到 20px
+    particle.style.setProperty('--horizontal-offset', horizontalOffset + 'px');
+    
+    // 粒子大小
+    const size = 1.5 + Math.random() * 2.5; // 1.5-4px
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    
+    // 科技蓝颜色变体
+    const colorVariations = [
+        '#00e4ff',
+        '#00a2ff', 
+        '#66ccff',
+        '#0099ff',
+        '#33bbff',
+        '#00ccff'
+    ];
+    const randomColor = colorVariations[Math.floor(Math.random() * colorVariations.length)];
+    particle.style.background = randomColor;
+    particle.style.boxShadow = `0 0 4px ${randomColor}, 0 0 8px rgba(0, 228, 255, 0.3)`;
+    
+    // 使用游离动画
+    particle.style.animation = 'easterEggParticleFloat 6s ease-out forwards';
+    
+    easterEggParticleContainer.appendChild(particle);
+    
+    // 6秒后移除粒子
+    setTimeout(() => {
+        if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+        }
+    }, 6000);
+}

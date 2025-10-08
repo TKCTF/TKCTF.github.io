@@ -84,6 +84,11 @@ async function build() {
       }
     });
     
+    // 复制Web Worker文件
+    if (fs.existsSync('./src/spectrum-worker.js')) {
+      fs.copyFileSync('./src/spectrum-worker.js', path.join(distDir, 'src/spectrum-worker.js'));
+    }
+    
     // 复制CNAME文件
     if (fs.existsSync('CNAME')) {
       fs.copyFileSync('CNAME', path.join(distDir, 'CNAME'));
@@ -95,7 +100,8 @@ async function build() {
     console.log('  ├── index.html');
     console.log('  ├── src/');
     console.log('  │   ├── scripts.min.js');
-    console.log('  │   └── styles.min.css');
+    console.log('  │   ├── styles.min.css');
+    console.log('  │   └── spectrum-worker.js');
     console.log('  ├── data/');
     console.log('  ├── img/');
     console.log('  ├── sound/');
