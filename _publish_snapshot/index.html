@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./img/TKCTF512.svg" type="image/svg+xml">
+    <title>TKCTF - 浙江同济科技职业学院信息安全社团</title>
+    <link rel="stylesheet" href="./src/styles.min.css">
+</head>
+<body>
+    <!-- 网格背景 -->
+    <div class="grid-bg"></div>
+
+    <!-- 数据流背景 -->
+    <div class="data-streams" id="dataStreams"></div>
+    <!-- 音频元素 -->
+    <audio id="bgmAudio" preload="auto">
+        <source src="./sound/bgm.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+    </audio>
+
+    <div class="container">
+        <!-- 头部 -->
+        <header>
+            <div class="logo-container" id="logoContainer">
+                <div id="logo"></div>
+            </div>
+            <h1 class="main-title title-fade-in">TKCTF</h1>
+            <p class="subtitle subtitle-fade-in">浙江同济科技职业学院信息安全社团</p>
+                <!-- 音频状态提示 -->
+                <div class="audio-status blink" id="audioStatus">
+                    点击 LOGO 播放 BGM
+                </div>
+        </header>
+
+        <!-- 导航 -->
+        <nav>
+            <div class="nav-container">
+                <a href="#about">关于我们</a>
+                <a href="#presidents">历代扛把子</a>
+                <a href="#members">社员名单</a>
+                <a href="#teachers">指导老师</a>
+                <a href="#friends">友链</a>
+                <a href="#contact">联系我们</a>
+            </div>
+        </nav>
+
+        <!-- 关于我们 -->
+        <section id="about" class="content-section">
+            <h2 class="about-title">关于我们</h2>
+            <p class="about-content">浙江同济科技职业学院信息安全社团（TKCTF）成立于2020年，致力于提升学生的信息安全技能，推广网络安全意识。</p>
+            <p class="about-content">社团定期组织技术分享、CTF竞赛训练、攻防演练以及校外交流活动，培养具备实战能力的网络安全人才。</p>
+            <p class="about-content">我们的使命是在校园内营造良好的信息安全学习氛围，通过理论学习与实践训练相结合的方式，帮助社员掌握扎实的网络安全技能，为国家网络安全事业培养后备力量。</p>
+        </section>
+
+        <!-- 历代社长 -->
+        <section id="presidents" class="content-section">
+            <h2>扛把子编年史</h2>
+            <div id="presidentsList"></div>
+        </section>
+
+        <!-- 社员名单 -->
+        <section id="members" class="content-section">
+            <h2>常驻社员名单</h2>
+            <div id="membersList"></div>
+        </section>
+
+        <!-- 指导老师 -->
+        <section id="teachers" class="content-section">
+            <h2>指导老师</h2>
+            <p>李桂香、卢雪峰、傅继晗</p>
+        </section>
+
+        <!-- 友链 -->
+        <section id="friends" class="content-section">
+            <h2>友链</h2>
+            <div id="friendsList"></div>
+        </section>
+
+        <!-- 联系我们 -->
+        <section id="contact" class="content-section">
+            <h2>联系我们</h2>
+            <div class="contact-item">
+                <span class="contact-icon">📍</span>
+                <span>地址：
+                    浙江省杭州市萧山区宁围街道耕文路418号<a href="https://www.zjtongji.edu.cn/" target="_blank">浙江同济科技职业学院</a>图书信息楼405-2</span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">📧</span>
+                <span>
+                    邮箱：
+                    <a href="mailto:fujh@zjtongji.edu.cn">fujh@zjtongji.edu.cn</a>
+                    &
+                    <a href="mailto:me@hcaicai.top">me@hcaicai.top</a>
+                </span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">📞</span>
+                <span>
+                    电话：
+                    <a href="tel:+8657183866845">+86-0571-83866845</a>
+                </span>
+            </div>
+        </section>
+    </div>
+
+    <footer id="mainFooter">
+        <!-- 二进制频谱背景 -->
+        <div class="binary-spectrum" id="binarySpectrum"></div>
+        <p>&copy; 2025 <a href="https://zjtongji.tkctf.top" target="_blank">浙江同济科技职业学院信息安全社团</a> TKCTF. <br>版权所有</p>
+    </footer>
+
+    <div id="easterEgg" class="easter-egg">
+        <div id="cardContent"></div>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="./src/scripts.min.js"></script>
+    
+</body>
+
+</html>
