@@ -2,6 +2,7 @@
 node_modules/
 # Build outputs
 publish/
+_publish_snapshot/
 
 # Environment variables
 .env
