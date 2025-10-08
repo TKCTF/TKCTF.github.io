@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write    # 改成 write，以便后面能提交 _publish_snapshot 到 main 分支
   pages: write
   id-token: write
 
@@ -44,13 +44,13 @@ jobs:
         run: |
           mkdir -p ./publish
           TZ='Asia/Shanghai' TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-          cat > ./publish/README.md << 'EOF'
-          # 🌐 TKCTF 官方网站发布镜像目录
+          cat > ./publish/README.md <<EOF
+          # 🌐 TKCTF 官方网站自动发布镜像目录
 
           **浙江同济科技职业学院信息安全社团官网**
 
           ---
-          🕒 **最新构建时间：** '"$TIMESTAMP"' (UTC+8)
+          🕒 **最新构建时间：** ${TIMESTAMP} (UTC+8)
 
           🚀 **访问官网：** [https://zjtongji.tkctf.top](https://zjtongji.tkctf.top)
 
@@ -58,23 +58,32 @@ jobs:
           > 本目录由 GitHub Actions 自动生成与发布  
           > © TKCTF Information Security Club
           EOF
-    
-      # 4️⃣ 创建镜像文件夹
-      - name: Keep publish folder in repo (optional)
-        run: |
-          cp -r ./publish ./_publish_snapshot
 
-      # 5️⃣ 配置 GitHub Pages 环境
+      # 5️⃣ 保存一份发布快照到 main 分支（仅查看用）
+      - name: Save _publish_snapshot in main branch
+        run: |
+          rm -rf _publish_snapshot
+          mkdir -p _publish_snapshot
+          cp -r ./publish/* ./_publish_snapshot/
+
+          # 提交快照
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _publish_snapshot
+          git commit -m "chore: update _publish_snapshot ($(date '+%Y-%m-%d %H:%M:%S'))" || echo "No changes to commit"
+          git push origin main
+
+      # 6️⃣ 配置 GitHub Pages 环境
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 6️⃣ 上传构建产物（publish 文件夹）
+      # 7️⃣ 上传构建产物（publish 文件夹）
       - name: Upload publish directory
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./publish
 
-      # 7️⃣ 部署到 GitHub Pages
+      # 8️⃣ 部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
