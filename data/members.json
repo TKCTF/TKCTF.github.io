@@ -2,14 +2,14 @@
   "presidents": {
     "2020": {
       "members": [],
-      "achievements": "主要成就：2020年9月社团注册建立，具体信息暂无。"
+      "achievements": "主要成就：2020年9月社团注册建立。"
     },
     "2021": {
       "members": [
         {
           "name": "胡侃",
           "roles": ["竞赛/攻防负责人"],
-          "codeName": "老登/Paster/侃爷"
+          "codeName": "Paster/<侃爷>/<老登>"
         },
         {
           "name": "尹安江",
@@ -19,7 +19,7 @@
         {
           "name": "戴露凝",
           "roles": ["宣传负责人"],
-          "codeName": "带路您/singrel"
+          "codeName": "<带路您>/singrel"
         }
       ],
       "achievements": "主要成就：社团完成了技术方向的初步尝试，开始在外部赛事中取得成绩。"
@@ -29,12 +29,12 @@
         {
           "name": "傅继晗",
           "roles": [ "技术/竞赛/攻防负责人","社团新晋指导老师"],
-          "codeName": "猫猫虫/fjh1997/傅老大"
+          "codeName": "猫猫虫/fjh1997/<傅老大>"
         },
         {
           "name": "郝光彩",
           "roles": ["行政运营/技术/竞赛负责人", "CTF/攻防/问卷平台研发总监"],
-          "codeName": "郝彩彩/Xiao_Cai/彩少"
+          "codeName": "郝彩彩/Xiao_Cai/<彩少>"
         },
         {
           "name": "吴展望",
@@ -49,7 +49,7 @@
         {
           "name": "王坤",
           "roles": ["技术/竞赛负责人"],
-          "codeName": "Xkuno/QT坤"
+          "codeName": "Xkuno/0_o/<QT坤>"
         },
         {
           "name": "管景毅",
@@ -79,17 +79,22 @@
         {
           "name": "何佳桐",
           "roles": ["宣传负责人"],
-          "codeName": "学姐/Eliauk"
+          "codeName": "Eliauk/<学姐>"
         },
         {
           "name": "沈俊亦",
           "roles": ["技术负责人/ACM竞赛负责人", "ACM平台研发总监"],
-          "codeName": "沈爷/PadorFelice"
+          "codeName": "PadorFelice/<沈爷>"
         },
         {
           "name": "田润虎",
           "roles": ["技术负责人/CTF竞赛负责人"],
-          "codeName": "虎哥/过往の执念."
+          "codeName": "过往の执念./<虎哥>"
+        },
+        {
+          "name": "闫新瑞",
+          "roles": ["技术负责人"],
+          "codeName": "1g2ZpNXZy9mR"
         }
       ],
       "achievements": "主要成就：推行CTF周周练训练模式，并行开创ACM相关赛事培训，<a href=\"https://acm.tkctf.top\" target=\"_blank\">ACM实训平台</a>得到落地，并参加首次教育攻防演练，攻防方面社团排名提升至全省前十，获2024-2025年度学术科技类优秀社团称号。"
@@ -104,7 +109,7 @@
         {
           "name": "陈思绮",
           "roles": ["宣传负责人"],
-          "codeName": "大仓鼠"
+          "codeName": "<大仓鼠>"
         },
         {
           "name": "林俊忠",
@@ -128,7 +133,7 @@
     ],
     "2022": [
       "郝光彩", "吴展望", "钟方宇", "何源", "管景毅", "王坤", "杨智泽", "任阳辉", 
-      "严颖", "金心怡"
+      "严颖", "金心怡", "王颖祺"
     ],
     "2021": [
       "胡侃", "尹安江", "戴露凝"
