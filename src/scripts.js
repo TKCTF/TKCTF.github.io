@@ -1,8 +1,229 @@
+// 性能档位管理
+let performanceLevel = 'medium'; // low, medium, high
+let isMobile = false; // 将在DOMContentLoaded中正确设置
+
+// 性能档位切换功能
+function switchPerformanceLevel(level) {
+    if (performanceLevel === level) return;
+    
+    performanceLevel = level;
+    
+    // 更新UI状态
+    document.querySelectorAll('.performance-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-level="${level}"]`).classList.add('active');
+    
+    // 保存到本地存储
+    localStorage.setItem('tkctf-performance-level', level);
+    
+    // 重新创建特效元素
+    recreateEffects();
+}
+
+// 重新创建特效元素
+function recreateEffects() {
+    // 重新创建数据流
+    const dataStreamsContainer = document.getElementById('dataStreams');
+    if (dataStreamsContainer) {
+        dataStreamsContainer.innerHTML = '';
+        createDataStreams();
+    }
+    
+    // 重新创建频谱
+    createBinarySpectrum();
+    
+    // 重新设置元素初始状态
+    const config = getPerformanceConfig();
+    const selectors = [
+        '.content-section',
+        '.president-item',
+        '.president-members',
+        '.role-tag',
+        '.code-name'
+    ];
+
+    selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+            // 清除所有动画状态类
+            element.classList.remove('fade-in-visible');
+            
+            if (!config.enableFadeAnimations && (selector === '.role-tag' || selector === '.code-name')) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+                element.style.transition = 'none';
+            } else {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            }
+        });
+    });
+    
+    // 重新触发动画
+    setTimeout(() => {
+        animateOnScroll();
+    }, 100);
+}
+
+// 性能档位控件折叠功能
+function togglePerformanceToggle() {
+    const toggle = document.getElementById('performanceToggle');
+    const collapseIcon = document.querySelector('.collapse-icon');
+    
+    if (!isPerformanceToggleCollapsed) {
+        // 即将折叠：记录当前高度
+        const currentHeight = toggle.offsetHeight;
+        if (currentHeight > 0) {
+            savedToggleHeight = currentHeight;
+        }
+    }
+    
+    isPerformanceToggleCollapsed = !isPerformanceToggleCollapsed;
+    
+    if (isPerformanceToggleCollapsed) {
+        toggle.classList.add('collapsed');
+        collapseIcon.textContent = '<';
+        
+        // 应用保存的高度
+        if (savedToggleHeight > 0) {
+            toggle.style.height = savedToggleHeight + 'px';
+        }
+    } else {
+        toggle.classList.remove('collapsed');
+        collapseIcon.textContent = '>';
+        
+        // 移除固定高度，让内容自然撑开
+        toggle.style.height = '';
+    }
+    
+    // 保存状态到localStorage
+    localStorage.setItem('tkctf-performance-toggle-collapsed', isPerformanceToggleCollapsed);
+    
+    // 更新位置以避免与nav冲突
+    updatePerformanceTogglePosition();
+}
+
+// 更新性能档位控件位置（简化版）
+function updatePerformanceTogglePosition() {
+    // 直接调用NAV位置检查函数
+    checkNavPosition();
+}
+
+// 检查NAV位置并调整性能控件位置
+function checkNavPosition() {
+    const nav = document.querySelector('nav');
+    const toggle = document.getElementById('performanceToggle');
+    
+    if (!nav || !toggle) return;
+    
+    const navRect = nav.getBoundingClientRect();
+    const toggleRect = toggle.getBoundingClientRect();
+    const isWideScreen = window.innerWidth >= 768;
+    const defaultTop = isWideScreen ? 20 : 10;
+    
+    // 检查NAV是否已经置顶（固定在顶部）
+    // NAV置顶的判断：NAV的top值接近20px（sticky top: 20px）
+    const isNavSticky = navRect.top <= 25; // 允许5px的误差
+    
+    
+    if (isNavSticky) {
+        // NAV已置顶，检查控件底边是否与NAV上边线碰撞
+        const toggleBottom = defaultTop + toggleRect.height;
+        const navTop = navRect.top;
+        
+        // 检查垂直碰撞：控件底边 >= NAV上边线
+        const verticalCollision = toggleBottom >= navTop;
+        
+        // 检查水平重叠：两个元素在水平方向有重叠
+        const horizontalOverlap = !(navRect.right < toggleRect.left || navRect.left > toggleRect.right);
+        
+        // 只有当垂直碰撞且水平重叠时才避让
+        const shouldAvoid = verticalCollision && horizontalOverlap;
+        
+        
+        if (shouldAvoid) {
+            // 只有在当前没有避让时才进行避让
+            if (!isAvoidingNav) {
+                const newTop = navTop + navRect.height + 10; // NAV底部 + 10px间距
+                toggle.style.top = newTop + 'px';
+                isAvoidingNav = true;
+            }
+        } else {
+            // 只有在当前正在避让时才恢复默认位置
+            if (isAvoidingNav) {
+                toggle.style.top = defaultTop + 'px';
+                isAvoidingNav = false;
+            }
+        }
+    } else {
+        // NAV未置顶，确保控件在默认位置
+        if (isAvoidingNav) {
+            toggle.style.top = defaultTop + 'px';
+            isAvoidingNav = false;
+        }
+    }
+}
+
+// 获取性能档位配置
+function getPerformanceConfig() {
+    const baseConfig = {
+        low: {
+            // 低档位：当前优化版本
+            dataStreamCount: isMobile ? 4 : 12,
+            binaryStreamCount: isMobile ? Math.floor(8 * 0.2) : 8,
+            spectrumBarCount: isMobile ? Math.floor(window.innerWidth / 24) : Math.floor(window.innerWidth / 12),
+            spectrumBarWidth: isMobile ? 16 : 8,
+            enableBinaryDigits: false,
+            enableSpectrumHighlight: false,
+            enableDataStreamGlitch: false,
+            enableLogoBeats: false,
+            enableFadeAnimations: false,
+            particleCount: isMobile ? 12 : 18,
+            dataStreamDrift: isMobile ? 30 : 100,
+            typewriterWaitTime: 4500 
+        },
+        medium: {
+            // 中档位：在低档位基础上加上10个二进制数字
+            dataStreamCount: isMobile ? 8 : 16,
+            binaryStreamCount: isMobile ? Math.floor(8 * 0.5) : 8,
+            spectrumBarCount: isMobile ? Math.floor(window.innerWidth / 24) : Math.floor(window.innerWidth / 12), // 保持低档位密度
+            spectrumBarWidth: isMobile ? 16 : 8, // 保持低档位宽度
+            enableBinaryDigits: true,
+            enableSpectrumHighlight: true,
+            enableDataStreamGlitch: true,
+            enableLogoBeats: true,
+            enableFadeAnimations: true,
+            particleCount: isMobile ? 15 : 20,
+            dataStreamDrift: isMobile ? 50 : 100,
+            typewriterWaitTime: 3500 
+        },
+        high: {
+            // 高档位：使用现在中档位的模式
+            dataStreamCount: isMobile ? 12 : 20,
+            binaryStreamCount: isMobile ? 8 : 8,
+            spectrumBarCount: isMobile ? Math.floor(window.innerWidth / 18) : Math.floor(window.innerWidth / 12), // 使用原中档位密度
+            spectrumBarWidth: isMobile ? 12 : 8, 
+            enableBinaryDigits: true,
+            enableSpectrumHighlight: true,
+            enableDataStreamGlitch: true,
+            enableLogoBeats: true,
+            enableFadeAnimations: true,
+            particleCount: isMobile ? 18 : 20,
+            dataStreamDrift: isMobile ? 100 : 100,
+            typewriterWaitTime: 2500 
+        }
+    };
+    
+    return baseConfig[performanceLevel];
+}
+
 // 创建数据流系统
 function createDataStreams() {
     const container = document.getElementById('dataStreams');
-    const isMobile = window.innerWidth < 768;
-    const streamCount = isMobile ? 4 : 20; // 手机端进一步减少到4个
+    const config = getPerformanceConfig();
+    const streamCount = config.dataStreamCount;
 
     // 数据流内容数组
     const dataTypes = [
@@ -145,8 +366,8 @@ function createDataStreams() {
         stream.textContent = randomData;
 
         const startX = Math.random() * window.innerWidth;
-        // 手机端减少抖动程度
-        const driftX = isMobile ? (Math.random() - 0.5) * 30 : (Math.random() - 0.5) * 100;
+        // 根据性能档位调整抖动程度
+        const driftX = (Math.random() - 0.5) * config.dataStreamDrift;
         const delay = Math.random() * 8;
 
         stream.style.left = startX + 'px';
@@ -163,12 +384,8 @@ function createDataStreams() {
 // 创建二进制数据流
 function createBinaryStreams() {
     const container = document.getElementById('dataStreams');
-    
-    // 检测是否为移动端
-    const isMobile = window.innerWidth < 768;
-    
-    // 根据设备类型调整数量
-    const binaryCount = isMobile ? Math.floor(8 * 0.2) : 8; // 手机端减少到20%
+    const config = getPerformanceConfig();
+    const binaryCount = config.binaryStreamCount;
 
     for (let i = 0; i < binaryCount; i++) {
         const stream = document.createElement('div');
@@ -227,12 +444,8 @@ function animateOnScroll() {
     const triggerPoint = windowHeight * 0.7; // 当元素进入视口70%时触发（更灵敏）
 
     // 需要淡入的元素选择器（移除content-section，单独处理）
-    const isMobile = window.innerWidth < 768;
-    const selectors = isMobile ? [
-        '.president-item',
-        '.president-members',
-        '#friendsList'  
-    ] : [
+    const config = getPerformanceConfig();
+    const selectors = config.enableFadeAnimations ? [
         '.president-item',
         '.contact-item',
         '#friendsList',  
@@ -240,6 +453,10 @@ function animateOnScroll() {
         '.member-row',
         '.role-tag',
         '.code-name'
+    ] : [
+        '.president-item',
+        '.president-members',
+        '#friendsList'  
     ];
 
     // 单独处理content-section元素（触发点更低，动画更慢）
@@ -336,6 +553,9 @@ function handleBackToTop() {
 
 // 返回顶部功能
 function scrollToTop() {
+    // 重置persistentGlow状态
+    resetBounceHeight();
+    
     window.scrollTo({
         top: 0,
         behavior: 'smooth'
@@ -464,9 +684,9 @@ function renderPresidents(presidentsData) {
                     roleTag.textContent = role;
                     
                     // 设置初始状态
-                    const isMobile = window.innerWidth < 768;
-                    if (isMobile) {
-                        // 手机端直接显示，不设置淡入动画
+                    const config = getPerformanceConfig();
+                    if (!config.enableFadeAnimations) {
+                        // 低档位直接显示，不设置淡入动画
                         roleTag.style.opacity = '1';
                         roleTag.style.transform = 'translateY(0)';
                         roleTag.style.transition = 'none';
@@ -496,9 +716,9 @@ function renderPresidents(presidentsData) {
                 }
                 
                 // 设置初始状态
-                const isMobile = window.innerWidth < 768;
-                if (isMobile) {
-                    // 手机端直接显示，不设置淡入动画
+                const config = getPerformanceConfig();
+                if (!config.enableFadeAnimations) {
+                    // 低档位直接显示，不设置淡入动画
                     codeSpan.style.opacity = '1';
                     codeSpan.style.transform = 'translateY(0)';
                     codeSpan.style.transition = 'none';
@@ -587,8 +807,9 @@ function startTypewriterEffect(element, codeName) {
     let isTyping = true;
     let currentText = '';
     
-    const isMobile = window.innerWidth < 768;
-    const waitTime = isMobile ? 6000 : 2500; // 手机端6秒，桌面端3秒
+    // 从性能配置中获取等待时间
+    const config = getPerformanceConfig();
+    const waitTime = config.typewriterWaitTime;
     
     function typeText() {
         const targetText = codeNames[currentIndex].trim();
@@ -600,7 +821,7 @@ function startTypewriterEffect(element, codeName) {
                 element.textContent = currentText;
                 setTimeout(typeText, 100 + Math.random() * 100); // 随机打字速度
             } else {
-                // 打字完成，根据设备类型等待不同时间
+                // 打字完成，根据性能配置等待时间
                 setTimeout(() => {
                     isTyping = false;
                     typeText();
@@ -748,10 +969,17 @@ function applyMultiRoleEffect(element, roles) {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 正确设置移动端检测
+    isMobile = window.innerWidth < 768;
+    
+    // 初始化滚动位置
+    lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
     createDataStreams();
+    createBinarySpectrum();
 
     // 设置所有元素的初始状态
-    const isMobile = window.innerWidth < 768;
+    const config = getPerformanceConfig();
     const selectors = [
         '.content-section',
         '.president-item',
@@ -767,8 +995,8 @@ document.addEventListener('DOMContentLoaded', function() {
     selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
-            // 手机端tag和codename直接显示，不设置淡入动画
-            if (isMobile && (selector === '.role-tag' || selector === '.code-name')) {
+            // 根据性能档位设置淡入动画
+            if (!config.enableFadeAnimations && (selector === '.role-tag' || selector === '.code-name')) {
                 element.style.opacity = '1';
                 element.style.transform = 'translateY(0)';
                 element.style.transition = 'none';
@@ -805,9 +1033,87 @@ document.addEventListener('DOMContentLoaded', function() {
         backToTopBtn.addEventListener('click', scrollToTop);
     }
     
+    // 新增：绑定Logo点击事件
+    const logoContainer = document.getElementById('logoContainer');
+    const audio = document.getElementById('bgmAudio');
+    
+    if (logoContainer && audio) {
+        // 加载SVG文件
+        loadLogoSVG();
+        
+        // 初始化鼠标跟随效果
+        initMouseFollow();
+        
+        logoContainer.addEventListener('click', handleLogoClick);
+        audio.addEventListener('ended', handleAudioEnd);
+    
+        // 直接设置初始状态
+        updateAudioStatus('initial');
+        
+        // 确保Logo在手机模式下有正确的初始状态
+        if (isMobile) {
+            const logo = document.getElementById('logo');
+            if (logo) {
+                // 重置Logo的transform，确保没有残留的鼠标跟随效果
+                logo.style.transform = '';
+            }
+        }
+    }
+        
+    // 添加音量控制（可选）
+    if (audio) {
+        audio.volume = 1.0; // 设置音量为100%
+        
+        // 循环播放
+        audio.loop = true;
+    }
     
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const requiredCount = isTouchDevice ? 20 : 150;
+    
+    // 初始化性能档位
+    const savedLevel = localStorage.getItem('tkctf-performance-level');
+    if (savedLevel && ['low', 'medium', 'high'].includes(savedLevel)) {
+        performanceLevel = savedLevel;
+        // 更新UI状态
+        document.querySelectorAll('.performance-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-level="${savedLevel}"]`).classList.add('active');
+    }
+    
+    // 绑定性能档位切换事件
+    document.querySelectorAll('.performance-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const level = btn.getAttribute('data-level');
+            switchPerformanceLevel(level);
+        });
+    });
+    
+    // 初始化性能档位控件折叠状态
+    const savedCollapsedState = localStorage.getItem('tkctf-performance-toggle-collapsed');
+    
+    if (savedCollapsedState === 'true') {
+        isPerformanceToggleCollapsed = true;
+        document.getElementById('performanceToggle').classList.add('collapsed');
+        document.querySelector('.collapse-icon').textContent = '<';
+    }
+    
+    // 绑定折叠按钮事件
+    const collapseBtn = document.getElementById('performanceToggleCollapse');
+    if (collapseBtn) {
+        collapseBtn.addEventListener('click', togglePerformanceToggle);
+    }
+    
+    // 延迟检查NAV位置（等待nav渲染完成）
+    setTimeout(() => {
+        checkNavPosition();
+    }, 1000);
+    
+    // 持续检查NAV位置变化
+    setInterval(() => {
+        checkNavPosition();
+    }, 500);
 });
 
 // 节流函数优化滚动性能
@@ -837,6 +1143,16 @@ let bounceCount = 0;
 let currentBounceHeight = 1;
 let isBouncing = false;
 let hasResetBounce = false;
+
+// 滚动位置跟踪
+let lastScrollTop = 0;
+let wheelAccumulator = 0;
+let lastWheelTime = 0;
+
+// 性能档位控件折叠状态
+let isPerformanceToggleCollapsed = false;
+let savedToggleHeight = 0;
+let isAvoidingNav = false;
 
 // 科技蓝颗粒迸发效果相关变量
 let lastBurstTime = 0;
@@ -902,10 +1218,33 @@ function handleWheelEvent(event) {
     const isFooterFullyVisible = scrollTop + windowHeight >= footerTop + footer.offsetHeight;
     
     if (isAtBottom && isFooterFullyVisible) {
+        const currentTime = Date.now();
+        
         if (event.deltaY > 0) {
             if (!isEasterEggActive) {
-                event.preventDefault();
-                addBounceHeight(0);
+                const magnitude = Math.abs(event.deltaY);
+                const boost = 1 + Math.min(2, magnitude / 150); // 1~3 倍（更克制）
+                wheelAccumulator += magnitude * boost;
+
+                const fastWindowMs = 250;
+                const triggerThreshold = 3200;
+
+                if (currentTime - lastWheelTime < fastWindowMs) {
+                    if (wheelAccumulator >= triggerThreshold) {
+                        event.preventDefault();
+
+                        const steps = Math.min(3, Math.max(1, Math.ceil(wheelAccumulator / 1200)));
+                        for (let i = 0; i < steps; i++) {
+                            addBounceHeight(0);
+                        }
+
+                        wheelAccumulator = 0; 
+                    }
+                } else {
+                    wheelAccumulator = magnitude * boost;
+                }
+
+                lastWheelTime = currentTime;
             }
         } else if (event.deltaY < 0) {
             if (!isEasterEggActive) {
@@ -1265,6 +1604,17 @@ function initCardInteraction() {
 }
 
 window.addEventListener('scroll', () => {
+    const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // 检测滚动条上移超过1px时重置persistentGlow
+    if (currentScrollTop < lastScrollTop - 1) {
+        if (bounceCount > 0) {
+            resetBounceHeight();
+        }
+    }
+    
+    lastScrollTop = currentScrollTop;
+    
     handleBackToTop();
     animateOnScroll();
     handleEasterEggScroll();
@@ -1410,8 +1760,8 @@ function initSpectrumWorker() {
     try {
         // 根据当前环境选择Worker路径
         const workerPath = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? './src/spectrum-worker.js' 
-            : './src/spectrum-worker.js';
+            ? './src/spectrum-worker.min.js' 
+            : './src/spectrum-worker.min.js';
         
         spectrumWorker = new Worker(workerPath);
         isWorkerSupported = true;
@@ -1530,6 +1880,11 @@ function loadLogoSVG() {
 // 鼠标悬浮磁吸效果
 function initMouseFollow() {
     const logoContainer = document.getElementById('logoContainer');
+    
+    // 手机模式下不启用鼠标跟随效果
+    if (isMobile) {
+        return;
+    }
     
     logoContainer.addEventListener('mousemove', (e) => {
         const rect = logoContainer.getBoundingClientRect();
@@ -1710,11 +2065,29 @@ function detectHeavyBeat() {
     if (!spectrumBars.length) return false;
     
     const currentTime = Date.now();
+    const config = getPerformanceConfig();
     
-    // 计算20-25%区域的频谱条索引范围
+    // 根据性能档位设置不同的检测参数
+    let endIndexRatio, requiredRatio, bufferTime, cooldownTime;
+    
+    if (performanceLevel === 'high') {
+        // 高级档位：更敏感的重型Beats检测
+        endIndexRatio = 0.35;  // 检测范围：25%-35%
+        requiredRatio = 7 / 10; // 需要7/10的频谱条激活
+        bufferTime = 50;        // 50ms检测窗口
+        cooldownTime = 250;     // 250ms触发间隔
+    } else {
+        // 中低级档位：保持原有参数
+        endIndexRatio = 0.45;   // 检测范围：25%-45%
+        requiredRatio = 9 / 10; // 需要9/10的频谱条激活
+        bufferTime = 100;       // 100ms检测窗口
+        cooldownTime = 300;     // 300ms触发间隔
+    }
+    
+    // 计算频谱条索引范围
     const totalBars = spectrumBars.length;
     const startIndex = Math.floor(totalBars * 0.25);
-    const endIndex = Math.floor(totalBars * 0.45);
+    const endIndex = Math.floor(totalBars * endIndexRatio);
     const targetBars = spectrumBars.slice(startIndex, endIndex);
     
     // 统计激活状态的频谱条数量
@@ -1725,26 +2098,26 @@ function detectHeavyBeat() {
         }
     });
     
-    // 需要至少3/5的频谱条激活（提高灵敏度）
-    const requiredActiveBars = Math.max(1, Math.ceil(targetBars.length * 9 / 10));
+    // 根据性能档位设置激活阈值
+    const requiredActiveBars = Math.max(1, Math.ceil(targetBars.length * requiredRatio));
     const isHeavyBeat = activeBars >= requiredActiveBars;
     
-    // 记录激活状态到缓冲区，延长检测窗口到100ms
+    // 记录激活状态到缓冲区
     heavyBeatBuffer.push({
         time: currentTime,
         isActive: isHeavyBeat
     });
     
-    // 清理100ms以前的记录
+    // 清理缓冲区
     heavyBeatBuffer = heavyBeatBuffer.filter(record => 
-        currentTime - record.time <= 100
+        currentTime - record.time <= bufferTime
     );
     
-    // 检查100ms内是否有重beats
+    // 检查缓冲区内是否有重beats
     const recentHeavyBeats = heavyBeatBuffer.filter(record => record.isActive);
     
-    // 缩短重beats间隔到200ms，提高触发频率
-    if (recentHeavyBeats.length > 0 && (currentTime - lastHeavyBeatTime) > 300) {
+    // 根据性能档位设置触发间隔
+    if (recentHeavyBeats.length > 0 && (currentTime - lastHeavyBeatTime) > cooldownTime) {
         lastHeavyBeatTime = currentTime;
         return true;
     }
@@ -1767,49 +2140,98 @@ function updateProgress() {
 // 创建二进制频谱
 function createBinarySpectrum() {
     const spectrumContainer = document.getElementById('binarySpectrum');
+    const config = getPerformanceConfig();
     
-    const isMobile = window.innerWidth < 768;
-    
-    // 根据设备类型调整频谱数量和宽度
-    let barCount, barWidth;
-    if (isMobile) {
-        // 手机模式：数量减少到1/2，宽度扩大到2倍
-        barCount = Math.floor(window.innerWidth / 24); // 从12改为24，减少数量
-        barWidth = 16; // 从8px改为16px，扩大宽度
-    } else {
-        // 桌面模式：保持原有设置
-        barCount = Math.floor(window.innerWidth / 12);
-        barWidth = 8;
-    }
+    // 根据性能档位调整频谱数量和宽度
+    const barCount = config.spectrumBarCount;
+    const barWidth = config.spectrumBarWidth;
     
     spectrumContainer.innerHTML = '';
     spectrumBars = [];
     
-    for (let i = 0; i < barCount; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'spectrum-bar';
-        bar.style.left = (i * (100 / barCount)) + '%';
-        bar.style.height = '0px'; // 初始高度为0
-        bar.style.width = barWidth + 'px'; // 设置频谱条宽度
+    // 手机模式下使用异步创建，避免阻塞主线程
+    if (isMobile && barCount > 10) {
+        let currentIndex = 0;
+        const batchSize = Math.max(1, Math.floor(barCount / 4)); // 分4批创建
         
-        // 手机端：不创建二进制数字容器以节省性能
-        if (!isMobile) {
-            // 创建二进制数字容器
-            const binaryDigits = document.createElement('div');
-            binaryDigits.className = 'binary-digits';
+        function createBatch() {
+            const endIndex = Math.min(currentIndex + batchSize, barCount);
             
-            // 生成随机二进制字符串
-            let binaryString = '';
-            const digitCount = Math.floor(Math.random() * 12) + 8; // 增加数字数量
-            for (let j = 0; j < digitCount; j++) {
-                binaryString += Math.random() > 0.5 ? '1' : '0';
+            for (let i = currentIndex; i < endIndex; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'spectrum-bar';
+                bar.style.left = (i * (100 / barCount)) + '%';
+                bar.style.height = '0px'; // 初始高度为0
+                bar.style.width = barWidth + 'px'; // 设置频谱条宽度
+                
+                // 根据性能档位决定是否创建二进制数字容器
+                if (config.enableBinaryDigits) {
+                    // 创建二进制数字容器
+                    const binaryDigits = document.createElement('div');
+                    binaryDigits.className = 'binary-digits';
+                    
+                    // 手机端中档位：添加特殊类以加宽二进制字符
+                    if (isMobile && performanceLevel === 'medium') {
+                        binaryDigits.classList.add('mobile-medium-digits');
+                    }
+                    
+                    // 生成随机二进制字符串
+                    let binaryString = '';
+                    const digitCount = Math.floor(Math.random() * 12) + 8; // 增加数字数量
+                    for (let j = 0; j < digitCount; j++) {
+                        binaryString += Math.random() > 0.5 ? '1' : '0';
+                    }
+                    binaryDigits.textContent = binaryString;
+                    
+                    bar.appendChild(binaryDigits);
+                }
+                spectrumContainer.appendChild(bar);
+                spectrumBars.push(bar);
             }
-            binaryDigits.textContent = binaryString;
             
-            bar.appendChild(binaryDigits);
+            currentIndex = endIndex;
+            
+            // 如果还有更多元素需要创建，继续下一批
+            if (currentIndex < barCount) {
+                requestAnimationFrame(createBatch);
+            }
         }
-        spectrumContainer.appendChild(bar);
-        spectrumBars.push(bar);
+        
+        // 开始创建第一批
+        requestAnimationFrame(createBatch);
+    } else {
+        // 桌面模式或少量元素时同步创建
+        for (let i = 0; i < barCount; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'spectrum-bar';
+            bar.style.left = (i * (100 / barCount)) + '%';
+            bar.style.height = '0px'; // 初始高度为0
+            bar.style.width = barWidth + 'px'; // 设置频谱条宽度
+            
+            // 根据性能档位决定是否创建二进制数字容器
+            if (config.enableBinaryDigits) {
+                // 创建二进制数字容器
+                const binaryDigits = document.createElement('div');
+                binaryDigits.className = 'binary-digits';
+                
+                // 手机端中档位：添加特殊类以加宽二进制字符
+                if (isMobile && performanceLevel === 'medium') {
+                    binaryDigits.classList.add('mobile-medium-digits');
+                }
+                
+                // 生成随机二进制字符串
+                let binaryString = '';
+                const digitCount = Math.floor(Math.random() * 12) + 8; // 增加数字数量
+                for (let j = 0; j < digitCount; j++) {
+                    binaryString += Math.random() > 0.5 ? '1' : '0';
+                }
+                binaryDigits.textContent = binaryString;
+                
+                bar.appendChild(binaryDigits);
+            }
+            spectrumContainer.appendChild(bar);
+            spectrumBars.push(bar);
+        }
     }
 }
 
@@ -1836,18 +2258,23 @@ function createAudioVisualEffects() {
     const logoContainer = document.getElementById('logoContainer');
     const logo = document.getElementById('logo');
     
-    // 基础轻微抖动 - 只在播放时添加
-    if (isPlaying) {
+    // 基础轻微抖动 - 根据性能档位和播放状态决定
+    const config = getPerformanceConfig();
+    if (isPlaying && config.enableDataStreamGlitch) {
         dataStreams.classList.remove('glitch-beat');
         dataStreams.classList.add('glitch-subtle');
+    } else {
+        dataStreams.classList.remove('glitch-subtle', 'glitch-beat');
     }
     
     // 检测重beats
     const isHeavyBeat = detectHeavyBeat();
     const isBeat = detectBeat();
     
+    // 根据性能档位决定是否启用Logo Beats效果
+    
     // 重beats触发（优先级更高）
-    if (isHeavyBeat && !isInHeavyBeat) {
+    if (isHeavyBeat && !isInHeavyBeat && config.enableLogoBeats) {
         isInHeavyBeat = true;
         
         // 添加重beats状态
@@ -1872,7 +2299,7 @@ function createAudioVisualEffects() {
         
     } 
     // 普通beats触发（当没有重beats时）
-    else if (isBeat && !isInBeat && !isInHeavyBeat) {
+    else if (isBeat && !isInBeat && !isInHeavyBeat && config.enableLogoBeats) {
         isInBeat = true;
         
         // 添加activity状态到logo容器
@@ -1897,8 +2324,8 @@ function createAudioVisualEffects() {
             logoContainer.classList.remove('activity');
         }, 400);
         
-        // 数据流beat效果 - 手机端禁用
-        if (!isMobile) {
+        // 数据流beat效果 - 根据性能档位决定
+        if (config.enableDataStreamGlitch) {
             dataStreams.classList.remove('glitch-subtle');
             dataStreams.classList.add('glitch-beat');
             
@@ -1966,9 +2393,9 @@ function updateBinarySpectrumFromWorker(dataArray, workerData) {
         bar.classList.remove('stopping');
         bar.style.height = height + 'px';
         
-        // 手机端：取消Bar高亮和二进制数字更新以节省性能
-        const isMobile = window.innerWidth < 768;
-        if (!isMobile) {
+        // 根据性能档位决定是否启用Bar高亮和二进制数字更新
+        const config = getPerformanceConfig();
+        if (config.enableSpectrumHighlight) {
             // 使用Web Worker的Beat检测结果和能量值
             const isActive = workerData.beat.detected || workerData.heavyBeat.detected;
             const energyThreshold = 100;
@@ -1982,14 +2409,16 @@ function updateBinarySpectrumFromWorker(dataArray, workerData) {
             }
             
             // 随机更新二进制数字
-            if (Math.random() > 0.92) {
+            if (config.enableBinaryDigits && Math.random() > 0.92) {
                 const binaryDigits = bar.querySelector('.binary-digits');
-                let newBinary = '';
-                const digitCount = Math.floor(Math.random() * 12) + 8;
-                for (let j = 0; j < digitCount; j++) {
-                    newBinary += Math.random() > 0.5 ? '1' : '0';
+                if (binaryDigits) {
+                    let newBinary = '';
+                    const digitCount = Math.floor(Math.random() * 12) + 8;
+                    for (let j = 0; j < digitCount; j++) {
+                        newBinary += Math.random() > 0.5 ? '1' : '0';
+                    }
+                    binaryDigits.textContent = newBinary;
                 }
-                binaryDigits.textContent = newBinary;
             }
         }
     }
@@ -2014,9 +2443,9 @@ function updateBinarySpectrum(dataArray) {
         bar.classList.remove('stopping'); // 移除滑落类
         bar.style.height = height + 'px';
         
-        // 手机端：取消Bar高亮和二进制数字更新以节省性能
-        const isMobile = window.innerWidth < 768;
-        if (!isMobile) {
+        // 根据性能档位决定是否启用Bar高亮和二进制数字更新
+        const config = getPerformanceConfig();
+        if (config.enableSpectrumHighlight) {
             // 高能量时激活特效
             if (value > 120) { // 降低阈值，更容易触发
                 bar.classList.add('active');
@@ -2025,14 +2454,16 @@ function updateBinarySpectrum(dataArray) {
             }
             
             // 随机更新二进制数字 (稍微提高更新频率)
-            if (Math.random() > 0.92) { // 从0.95改为0.92
+            if (config.enableBinaryDigits && Math.random() > 0.92) { // 从0.95改为0.92
                 const binaryDigits = bar.querySelector('.binary-digits');
-                let newBinary = '';
-                const digitCount = Math.floor(Math.random() * 12) + 8;
-                for (let j = 0; j < digitCount; j++) {
-                    newBinary += Math.random() > 0.5 ? '1' : '0';
+                if (binaryDigits) {
+                    let newBinary = '';
+                    const digitCount = Math.floor(Math.random() * 12) + 8;
+                    for (let j = 0; j < digitCount; j++) {
+                        newBinary += Math.random() > 0.5 ? '1' : '0';
+                    }
+                    binaryDigits.textContent = newBinary;
                 }
-                binaryDigits.textContent = newBinary;
             }
         }
     }
@@ -2149,6 +2580,9 @@ function handleLogoClick() {
         isInHeavyBeat = false;
         heavyBeatBuffer = [];
         
+        // 重置persistentGlow状态
+        resetBounceHeight();
+        
         // 延迟一帧后停止故障效果，确保动画循环已停止
         requestAnimationFrame(() => {
             stopGlitchEffect();
@@ -2184,6 +2618,9 @@ function handleAudioEnd() {
         progressRect.setAttribute('width', '0');
     }
     
+    // 重置persistentGlow状态
+    resetBounceHeight();
+    
     // 延迟一帧后清理效果
     requestAnimationFrame(() => {
         stopGlitchEffect();
@@ -2192,57 +2629,18 @@ function handleAudioEnd() {
     updateAudioStatus('initial');
 }
 
-// 在页面加载完成后绑定事件
-document.addEventListener('DOMContentLoaded', function() {
-    // 原有的初始化代码...
-    createDataStreams();
-    createBinarySpectrum();
-
-        // 窗口大小变化时重新创建频谱
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                createBinarySpectrum();
-            }, 300);
-        });
-
-
-    // 注释掉设置初始状态，可能导致加载异常
-    // document.querySelectorAll('.content-section').forEach(element => {
-    //     element.style.opacity = '0';
-    //     element.style.transform = 'translateY(50px)';
-    //     element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    // });
-
-    // 注释掉animateOnScroll，可能导致加载异常
-    // animateOnScroll();
-    
-    // 新增：绑定Logo点击事件
-    const logoContainer = document.getElementById('logoContainer');
-    const audio = document.getElementById('bgmAudio');
-    
-    if (logoContainer && audio) {
-        // 加载SVG文件
-        loadLogoSVG();
+// 窗口大小变化时重新创建频谱
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        // 更新移动端检测
+        isMobile = window.innerWidth < 768;
+        createBinarySpectrum();
         
-        // 初始化鼠标跟随效果
-        initMouseFollow();
-        
-        logoContainer.addEventListener('click', handleLogoClick);
-        audio.addEventListener('ended', handleAudioEnd);
-    
-        // 直接设置初始状态
-        updateAudioStatus('initial');
-    }
-        
-    // 添加音量控制（可选）
-    if (audio) {
-        audio.volume = 1.0; // 设置音量为100%
-        
-        // 循环播放
-        audio.loop = true;
-    }
+        // 更新性能档位控件位置
+        checkNavPosition();
+    }, 300);
 });
 
 // 页面可见性变化时调整音量
@@ -2313,9 +2711,9 @@ function createTechParticleBurst() {
     const footerLeft = footerRect.left;
     const footerWidth = footerRect.width;
     
-    // 根据设备类型调整颗粒数量
-    const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 12 : 18;
+    // 根据性能档位调整颗粒数量
+    const config = getPerformanceConfig();
+    const particleCount = config.particleCount;
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');

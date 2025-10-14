@@ -1,23 +1,22 @@
-{
+﻿{
   "name": "tkctf-website",
   "version": "1.0.0",
   "description": "TKCTF 浙江同济科技职业学院信息安全社团官网",
-  "main": "index.html",
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "dev": "node build.js --watch"
+    "dev": "node build.js --watch",
+    "start": "node start-server.js"
   },
   "devDependencies": {
-    "clean-css-cli": "^5.6.3",
+    "chokidar": "^4.0.3",
     "crypto-js": "^4.2.0",
-    "esbuild": "^0.19.0",
-    "html-minifier-terser": "^7.2.0",
-    "terser": "^5.44.0"
+    "esbuild": "^0.24.2",
+    "http-server": "^14.1.1"
   },
   "keywords": [
     "tkctf",
-    "cybersecurity",
+    "Cyberspace Security",
     "website"
   ],
   "author": "TKCTF",

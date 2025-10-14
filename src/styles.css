@@ -23,6 +23,8 @@ body {
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .data-stream {
@@ -33,6 +35,8 @@ body {
     white-space: nowrap;
     opacity: 0;
     animation: dataFlow 8s linear infinite;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* 手机端数据流速度优化 */
@@ -134,6 +138,8 @@ body {
     white-space: nowrap;
     opacity: 0;
     animation: binaryFlow 20s linear infinite;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 
@@ -203,6 +209,7 @@ header {
     opacity: 0;
     transform: translateY(30px) scale(0.9);
     animation: logoFadeIn 2s ease-out forwards;
+    will-change: transform, opacity;
 }
 
 /* Logo样式 */
@@ -212,6 +219,8 @@ header {
     filter: drop-shadow(0 0 20px rgba(0, 162, 255, 0.5));
     transition: filter 0.3s ease, transform 0.15s ease-out;
     position: relative;
+    will-change: transform, filter;
+    transform: translateZ(0);
 }
 
 /* 确保SVG内部元素可访问 */
@@ -231,10 +240,11 @@ header {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) translateZ(0);
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
+    will-change: transform, opacity;
 }
 
 /* Beats脉冲动画 */
@@ -352,7 +362,7 @@ header {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) translateZ(0);
     border-radius: 50%;
     border: 4px solid rgba(0, 255, 255, 0.9);
     box-shadow: 
@@ -361,6 +371,7 @@ header {
     opacity: 0;
     pointer-events: none;
     animation: waveRing 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    will-change: transform, opacity;
 }
 
 /* 窄屏模式下的光环优化调整 */
@@ -387,6 +398,8 @@ header {
     height: 120px;
     pointer-events: none;
     opacity: 0;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 @keyframes logoGlow {
@@ -534,6 +547,8 @@ nav a:hover {
         0 8px 32px rgba(0, 228, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     z-index: 1;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* 边框流动点缀效果 */
@@ -562,6 +577,8 @@ nav a:hover {
     -webkit-mask-composite: xor;
     animation: subtleBorderFlow 6s ease-in-out infinite;
     z-index: -1;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 /* 确保内容在伪元素之上 */
@@ -642,6 +659,7 @@ nav a:hover {
     opacity: 0;
     transform: translateY(30px);
     animation: fadeInUp 0.8s ease-out forwards;
+    will-change: transform, opacity;
 }
 
 .president-item:nth-child(1) { animation-delay: 0.1s; }
@@ -654,7 +672,8 @@ nav a:hover {
     background: rgba(0, 40, 80, 0.7);
     border-color: rgba(0, 228, 255, 0.5);
     box-shadow: 0 10px 30px rgba(0, 228, 255, 0.2);
-    transform: translateY(-5px);
+    transform: translateY(-5px) translateZ(0);
+    will-change: transform, box-shadow;
 }
 
 .president-year {
@@ -676,6 +695,8 @@ nav a:hover {
     flex-direction: column;
     gap: 12px;
     margin-bottom: 15px;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .member-row {
@@ -686,6 +707,7 @@ nav a:hover {
     opacity: 0;
     transform: translateX(-20px);
     animation: memberSlideIn 0.6s ease-out forwards;
+    will-change: transform, opacity;
 }
 
 .member-row:nth-child(1) { animation-delay: 0.1s; }
@@ -720,6 +742,8 @@ nav a:hover {
     cursor: default;
     position: relative;
     overflow: hidden;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .role-tag::before {
@@ -738,8 +762,9 @@ nav a:hover {
 }
 
 .role-tag:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) translateZ(0);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    will-change: transform, box-shadow;
 }
 
 /* 角色颜色系统 - 根据关键词动态分配 */
@@ -842,6 +867,8 @@ nav a:hover {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* Shell打字光标效果 */
@@ -1204,6 +1231,8 @@ a:hover {
     pointer-events: none;
     z-index: 1001;
     overflow: hidden;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 .tech-particle {
@@ -1214,6 +1243,8 @@ a:hover {
     border-radius: 50%;
     box-shadow: 0 0 6px #00e4ff, 0 0 12px rgba(0, 228, 255, 0.6);
     animation: particleBurst 2.5s ease-out forwards;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 @keyframes particleBurst {
@@ -1636,7 +1667,7 @@ a:hover {
 /* Footer频谱背景 */
 footer {
     text-align: center;
-    padding: 40px 0;
+    padding: 30px 0;
     background: rgba(0, 20, 40, 0.8);
     border-top: 1px solid rgba(0, 228, 255, 0.3);
     border-bottom: 1px solid rgba(0, 228, 255, 0.3);
@@ -1656,6 +1687,8 @@ footer {
     pointer-events: none;
     z-index: -1;
     opacity: 0.6;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* 频谱柱状条 */
@@ -1677,6 +1710,8 @@ footer {
     color: rgba(0, 228, 255, 0.7);
     overflow: hidden;
     border-radius: 2px 2px 0 0; /* 添加圆角 */
+    will-change: transform, height;
+    transform: translateZ(0);
 }
 
 /* 频谱柱中的二进制数字 */
@@ -1686,6 +1721,8 @@ footer {
     letter-spacing: 1px;
     line-height: 1;
     text-shadow: 0 0 3px rgba(0, 228, 255, 0.5);
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* 手机端二进制数字宽度调整 */
@@ -1693,6 +1730,13 @@ footer {
     .spectrum-bar .binary-digits {
         font-size: 14px; /* 从12px增加到14px */
         letter-spacing: 2px; /* 增加字母间距 */
+    }
+    
+    /* 手机端中档位：进一步加宽二进制字符 */
+    .spectrum-bar .binary-digits.mobile-medium-digits {
+        font-size: 16px; /* 进一步增加到16px */
+        letter-spacing: 3px; /* 进一步增加字母间距 */
+        font-weight: 500; /* 稍微加粗 */
     }
 }
 
@@ -1704,11 +1748,143 @@ footer {
         rgba(102, 204, 255, 1) 100%);
     box-shadow: 0 0 12px rgba(0, 228, 255, 0.6);
     transition: height 0.1s ease-out; /* 激活时快速响应 */
+    will-change: transform, height, box-shadow;
+    transform: translateZ(0);
 }
 
 /* 频谱停止状态 - 滑落效果 */
 .spectrum-bar.stopping {
     transition: height 0.8s ease-in-out; /* 缓慢滑落 */
+    will-change: transform, height;
+    transform: translateZ(0);
+}
+
+/* 性能档位切换控件 */
+.performance-toggle {
+    position: fixed;
+    top: 20px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(0, 228, 255, 0.3);
+    border-radius: 8px;
+    z-index: 1001;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    display: flex;
+    align-items: stretch;
+    transition: all 0.5s ease;
+}
+
+.performance-toggle-content {
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.performance-toggle.collapsed .performance-toggle-content {
+    display: none;
+}
+
+.performance-toggle.collapsed .performance-toggle-collapse {
+    align-self: auto;
+}
+
+.performance-toggle-collapse {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 228, 255, 0.1);
+    border-left: 1px solid rgba(0, 228, 255, 0.3);
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    align-self: stretch;
+}
+
+.performance-toggle-collapse:hover {
+    background: rgba(0, 228, 255, 0.2);
+}
+
+.collapse-icon {
+    color: #00e4ff;
+    font-size: 12px;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.performance-toggle.collapsed .collapse-icon {
+    transform: rotate(180deg);
+}
+
+.performance-toggle-label {
+    color: #00e4ff;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.performance-toggle-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.performance-btn {
+    background: rgba(0, 228, 255, 0.1);
+    border: 1px solid rgba(0, 228, 255, 0.3);
+    color: #00e4ff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    will-change: transform, background-color, border-color;
+    transform: translateZ(0);
+}
+
+.performance-btn:hover {
+    background: rgba(0, 228, 255, 0.2);
+    border-color: rgba(0, 228, 255, 0.5);
+    transform: translateY(-1px) translateZ(0);
+}
+
+.performance-btn.active {
+    background: rgba(0, 228, 255, 0.3);
+    border-color: #00e4ff;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(0, 228, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+    .performance-toggle {
+        top: 10px;
+        right: 1px;
+    }
+    
+    .performance-toggle-content {
+        padding: 8px 12px;
+    }
+    
+    .performance-toggle-collapse {
+        width: 18px;
+    }
+    
+    .performance-toggle.collapsed .performance-toggle-collapse {
+        align-self: auto;
+    }
+    
+    .performance-toggle-label {
+        font-size: 0.7rem;
+        margin-bottom: 6px;
+    }
+    
+    .performance-btn {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+    }
 }
 
 /* 返回顶部按钮 */
@@ -1726,6 +1902,8 @@ footer {
     justify-content: center;
     cursor: pointer;
     opacity: 0;
+    will-change: transform, opacity;
+    transform: translateZ(0);
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 1000;
@@ -1811,6 +1989,8 @@ footer {
     position: absolute;
     border-radius: 50%;
     animation: easterEggParticleFloat 6s ease-out forwards;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 @keyframes easterEggParticleFloat {

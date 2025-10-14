@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   
+  contents: write    # 改成 write，以便后面能提交 _publish_snapshot 到 main 分支
   pages: write
   id-token: write
 
@@ -43,23 +43,21 @@ jobs:
       - name: Generate README.md
         run: |
           mkdir -p ./publish
-          export TZ='Asia/Shanghai'
-          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+           TIMESTAMP=$(TZ='Asia/Shanghai' date '+%Y-%m-%dT%H:%M:%S+08:00')
           cat > ./publish/README.md <<EOF
-          # 🌐 TKCTF 官方网站自动发布目录镜像
-      
+          # 🌐 TKCTF 官方网站自动发布镜像目录
+
           **浙江同济科技职业学院信息安全社团官网**
-      
+
           ---
-          🕒 **最新构建时间：** ${TIMESTAMP} (UTC+8)
-      
+          🕒 **最新构建时间：** ${TIMESTAMP}
+
           🚀 **访问官网：** [https://zjtongji.tkctf.top](https://zjtongji.tkctf.top)
-      
+
           ---
           > 本目录由 GitHub Actions 自动生成与发布  
           > © TKCTF Information Security Club
           EOF
-
 
       # 5️⃣ 保存一份发布快照到 main 分支（仅查看用）
       - name: Save _publish_snapshot in main branch
@@ -72,7 +70,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f _publish_snapshot
-          git commit -m "chore: update _publish_snapshot ($(date '+%Y-%m-%d %H:%M:%S'))" || echo "No changes to commit"
+           git commit -m "chore: update _publish_snapshot ($(TZ='Asia/Shanghai' date '+%Y-%m-%dT%H:%M:%S+08:00'))" || echo "No changes to commit"
           git push origin main
 
       # 6️⃣ 配置 GitHub Pages 环境
