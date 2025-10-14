@@ -19,7 +19,7 @@
         {
           "name": "戴露凝",
           "roles": ["宣传负责人"],
-          "codeName": "<带路您>/singrel"
+          "codeName": "singrel/<带路您>"
         }
       ],
       "achievements": "主要成就：社团完成了技术方向的初步尝试，开始在外部赛事中取得成绩。"
