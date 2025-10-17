@@ -364,6 +364,8 @@ function createDataStreams() {
 
         const randomData = dataTypes[Math.floor(Math.random() * dataTypes.length)];
         stream.textContent = randomData;
+        // 为字符级柔光提供数据：用于 ::after 复写文本
+        stream.setAttribute('data-text', randomData);
 
         const startX = Math.random() * window.innerWidth;
         // 根据性能档位调整抖动程度
@@ -398,6 +400,8 @@ function createBinaryStreams() {
             if (j % 8 === 7) binaryString += ' ';
         }
         stream.textContent = binaryString;
+        // 为字符级柔光提供数据：用于 ::after 复写文本
+        stream.setAttribute('data-text', binaryString);
 
         const startY = Math.random() * window.innerHeight;
         const delay = Math.random() * 20;
@@ -2267,7 +2271,7 @@ function createAudioVisualEffects() {
         dataStreams.classList.remove('glitch-subtle', 'glitch-beat');
     }
     
-    // 检测重beats
+    // 检测重beats/普通beats（复用现有检测）
     const isHeavyBeat = detectHeavyBeat();
     const isBeat = detectBeat();
     
@@ -2339,6 +2343,71 @@ function createAudioVisualEffects() {
         }
     }
     
+    // 数据流同步：按性能档位控制
+    if (isEasterEggActive) {
+        // 档位化参数：柔光半径/时长、高亮强度（可在CSS变量中再微调）
+        if (performanceLevel === 'low') {
+            // 低档位：也有轻柔光，范围较小、周期较短，瞬时高亮强度较低
+            dataStreams.style.setProperty('--egg-glow-radius', '80px');
+            dataStreams.style.setProperty('--egg-glow-filter-blur', '10px');
+            dataStreams.style.setProperty('--egg-glow-opacity', '0.16');
+            dataStreams.style.setProperty('--egg-glow-duration', '1.1s');
+            dataStreams.style.setProperty('--egg-highlight-brightness', '1.35');
+            dataStreams.style.setProperty('--egg-highlight-saturate', '1.2');
+            dataStreams.classList.add('egg-glow');
+
+            // 低档位：仅重Beats触发瞬时高亮
+            if (isHeavyBeat) {
+                dataStreams.classList.remove('egg-highlight');
+                dataStreams.offsetWidth;
+                dataStreams.classList.add('egg-highlight');
+                setTimeout(() => { dataStreams.classList.remove('egg-highlight'); }, 200);
+            }
+        } else if (performanceLevel === 'medium') {
+            // 中档位：柔光更大更久，高亮更亮，但只在重Beats触发
+            dataStreams.style.setProperty('--egg-glow-radius', '140px');
+            dataStreams.style.setProperty('--egg-glow-filter-blur', '18px');
+            dataStreams.style.setProperty('--egg-glow-opacity', '0.20');
+            dataStreams.style.setProperty('--egg-glow-duration', '1.6s');
+            dataStreams.style.setProperty('--egg-highlight-brightness', '1.75');
+            dataStreams.style.setProperty('--egg-highlight-saturate', '1.45');
+            dataStreams.classList.add('egg-glow');
+
+            if (isHeavyBeat) {
+                dataStreams.classList.remove('egg-highlight');
+                dataStreams.offsetWidth;
+                dataStreams.classList.add('egg-highlight');
+                setTimeout(() => { dataStreams.classList.remove('egg-highlight'); }, 180);
+            }
+        } else {
+            // 高档位：柔光范围最大、持续更久，高亮最明显，普通与重Beats都触发
+            dataStreams.style.setProperty('--egg-glow-radius', '200px');
+            dataStreams.style.setProperty('--egg-glow-filter-blur', '22px');
+            dataStreams.style.setProperty('--egg-glow-opacity', '0.24');
+            dataStreams.style.setProperty('--egg-glow-duration', '2.0s');
+            dataStreams.style.setProperty('--egg-highlight-brightness', '1.95');
+            dataStreams.style.setProperty('--egg-highlight-saturate', '1.6');
+            dataStreams.classList.add('egg-glow');
+
+            if (isHeavyBeat || isBeat) {
+                dataStreams.classList.remove('egg-highlight');
+                dataStreams.offsetWidth;
+                dataStreams.classList.add('egg-highlight');
+                setTimeout(() => { dataStreams.classList.remove('egg-highlight'); }, 140);
+            }
+        }
+    } else {
+        // 非页恢复原样
+        dataStreams.classList.remove('egg-glow', 'egg-highlight');
+        // 清理自定义变量，避免影响主页
+        dataStreams.style.removeProperty('--egg-glow-radius');
+        dataStreams.style.removeProperty('--egg-glow-filter-blur');
+        dataStreams.style.removeProperty('--egg-glow-opacity');
+        dataStreams.style.removeProperty('--egg-glow-duration');
+        dataStreams.style.removeProperty('--egg-highlight-brightness');
+        dataStreams.style.removeProperty('--egg-highlight-saturate');
+    }
+
     // 应用音频驱动的持续抖动效果
     applyAudioDrivenGlitch();
     
@@ -2762,11 +2831,11 @@ function createTechParticleBurst() {
     }, 1500);
 }
 
-// 彩蛋页面持续粒子效果相关变量
+// 页面持续粒子效果相关变量
 let easterEggParticleInterval = null;
 let easterEggParticleContainer = null;
 
-// 启动彩蛋页面的持续粒子游离效果
+// 启动页面的持续粒子游离效果
 function startEasterEggParticleEffect() {
     // 如果已经在运行，先停止
     stopEasterEggParticleEffect();
@@ -2792,7 +2861,7 @@ function startEasterEggParticleEffect() {
     }, 800);
 }
 
-// 停止彩蛋页面的持续粒子迸发效果
+// 停止页面的持续粒子迸发效果
 function stopEasterEggParticleEffect() {
     if (easterEggParticleInterval) {
         clearInterval(easterEggParticleInterval);
@@ -2807,7 +2876,7 @@ function stopEasterEggParticleEffect() {
     }
 }
 
-// 创建彩蛋页面的单个粒子游离效果
+// 创建页面的单个粒子游离效果
 function createEasterEggParticle() {
     if (!easterEggParticleContainer) return;
     

@@ -102,12 +102,12 @@ body {
     5% {
         opacity: 0.8;
     }
-    95% {
+    99% {
         opacity: 0.8;
     }
     100% {
         opacity: 0;
-        transform: translateY(-20vh) translateX(var(--drift-x, 0px));
+        transform: translateY(-120vh) translateX(var(--drift-x, 0px));
     }
 }
 
@@ -120,12 +120,12 @@ body {
     8% {
         opacity: 0.6; /* 手机端透明度降低 */
     }
-    92% {
+    99% {
         opacity: 0.6;
     }
     100% {
         opacity: 0;
-        transform: translateY(-20vh) translateX(var(--drift-x, 0px));
+        transform: translateY(-120vh) translateX(var(--drift-x, 0px));
     }
 }
 
@@ -1137,9 +1137,6 @@ a:hover {
     text-shadow: 0 0 10px rgba(0, 228, 255, 0.7);
 }
 
-/* 移除基于section ID的延迟动画，恢复原本加载模式 */
-
-/* 彩蛋样式 */
 .easter-egg {
     position: relative;
     width: 100%;
@@ -1656,6 +1653,94 @@ a:hover {
     animation: beatGlitch 0.25s ease-out; /* 从0.3s改为0.25s */
 }
 
+.data-streams.egg-glow .data-stream {
+    position: relative;
+}
+
+.data-streams.egg-glow .data-stream::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    color: currentColor;
+    pointer-events: none;
+    /* 字符级柔光（范围、强度走变量） */
+    text-shadow:
+        0 0 calc(var(--egg-glow-radius, 100px) * 0.06) rgba(0, 228, 255, calc(var(--egg-glow-opacity, 0.18) * 1.2)),
+        0 0 calc(var(--egg-glow-radius, 100px) * 0.10) rgba(0, 162, 255, calc(var(--egg-glow-opacity, 0.18) * 0.8));
+    animation: eggCharGlowPulse var(--egg-glow-duration, 1.4s) ease-in-out infinite;
+}
+
+/* 二进制数据流同样叠加字符级柔光（激活时） */
+.data-streams.egg-glow .binary-stream {
+    position: relative;
+}
+
+.data-streams.egg-glow .binary-stream::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    color: currentColor;
+    pointer-events: none;
+    text-shadow:
+        0 0 calc(var(--egg-glow-radius, 100px) * 0.06) rgba(0, 228, 255, calc(var(--egg-glow-opacity, 0.18) * 1.2)),
+        0 0 calc(var(--egg-glow-radius, 100px) * 0.10) rgba(0, 162, 255, calc(var(--egg-glow-opacity, 0.18) * 0.8));
+    animation: eggCharGlowPulse var(--egg-glow-duration, 1.4s) ease-in-out infinite;
+}
+
+/* 叠加柔光脉动，不影响容器抖动（glitch-*） */
+@keyframes eggCharGlowPulse {
+    0%, 100% {
+        text-shadow:
+            0 0 calc(var(--egg-glow-radius, 100px) * 0.05) rgba(0, 228, 255, calc(var(--egg-glow-opacity, 0.18) * 1.0)),
+            0 0 calc(var(--egg-glow-radius, 100px) * 0.08) rgba(0, 162, 255, calc(var(--egg-glow-opacity, 0.18) * 0.7));
+        filter: brightness(1.00);
+    }
+    50% {
+        text-shadow:
+            0 0 calc(var(--egg-glow-radius, 100px) * 0.07) rgba(0, 228, 255, calc(var(--egg-glow-opacity, 0.18) * 1.5)),
+            0 0 calc(var(--egg-glow-radius, 100px) * 0.12) rgba(0, 162, 255, calc(var(--egg-glow-opacity, 0.18) * 1.0));
+        filter: brightness(1.06);
+    }
+}
+
+/* 页瞬时高亮：以下变量可快速微调亮度与饱和度
+   --egg-highlight-brightness: 高亮亮度强度
+   --egg-highlight-saturate: 高亮饱和度强度 */
+.data-streams.egg-highlight {
+    animation: eggHighlightFlash 0.18s ease-out;
+}
+
+@keyframes eggHighlightFlash {
+    0% {
+        filter: brightness(1) saturate(1);
+        opacity: 1;
+    }
+    35% {
+        filter: brightness(var(--egg-highlight-brightness, 1.6)) saturate(var(--egg-highlight-saturate, 1.35));
+        opacity: 1;
+    }
+    100% {
+        filter: brightness(1) saturate(1);
+        opacity: 1;
+    }
+}
+
+/* 柔光脉动：通过周期变化模拟持续柔光强度起伏 */
+@keyframes eggGlowPulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 var(--egg-glow-filter-blur, 14px) rgba(0, 228, 255, 0.16))
+                brightness(1.00);
+    }
+    50% {
+        filter: drop-shadow(0 0 calc(var(--egg-glow-filter-blur, 14px) * 1.15) rgba(0, 228, 255, 0.22))
+                brightness(1.08);
+    }
+}
+
 /* 移除原有的颜色变化动画，保持原色 */
 .data-streams.glitch .data-stream:nth-child(odd),
 .data-streams.glitch .data-stream:nth-child(even) {
@@ -1984,7 +2069,7 @@ footer {
     }
 }
 
-/* 彩蛋页面粒子效果 */
+/* 页面粒子效果 */
 .easter-egg-particle {
     position: absolute;
     border-radius: 50%;

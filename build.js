@@ -139,6 +139,12 @@ function copyStatic() {
     fs.copyFileSync('CNAME', path.join(distDir, 'CNAME'));
     log('🌐 CNAME 已复制');
   }
+
+  // --- favicon.ico ---
+  if (fs.existsSync('favicon.ico')) {
+    fs.copyFileSync('favicon.ico', path.join(distDir, 'favicon.ico'));
+    log('🖼 favicon.ico 已复制');
+  }
 }
 
 // =============================
