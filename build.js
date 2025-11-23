@@ -116,7 +116,7 @@ function copyStatic() {
   }
 
   // --- 静态资源目录 ---
-  const staticDirs = ['data', 'img', 'sound'];
+  const staticDirs = ['data', 'img', 'sound', 'fonts'];
   staticDirs.forEach(dir => {
     if (fs.existsSync(dir)) {
       const destDir = path.join(distDir, dir);
@@ -222,6 +222,7 @@ function printFileTree() {
   log('  ├── data/');
   log('  ├── img/');
   log('  ├── sound/');
+  log('  ├── fonts/');
   log('  └── CNAME');
 }
 

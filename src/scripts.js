@@ -242,7 +242,7 @@ function createDataStreams() {
         'john --wordlist=rockyou.txt hash.txt',
         'sqlmap -u "http://target.com/login.php"',
         'python3 exploit.py --target 192.168.1.100',
-        'U2VjcmV0OiBCR00gT04gKyBkaXYgRm9vdGVyIOKGk+KGk+KGkw==',
+        'V2hlbiBkZXN0aW55IGJlZ2lucyB0byByZXNvbmF0ZShCR00pLCB0aGUgYW5zd2VyIGxpZXMgaW4gdGhlIGFieXNzKEZvb3RlciksIHdhaXRpbmcgZm9yIHlvdSB0byBkaXNjb3ZlciBpdC4=',
         'use exploit/multi/handler',
         'set PAYLOAD windows/x64/meterpreter/reverse_tcp',
         'msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.0.87 LPORT=4444 -f elf -o reverse.elf',
@@ -1673,21 +1673,35 @@ function decryptCardContent(encryptedContent) {
     }
 }
 
+// 卡片翻转计数和缓存
+let cardFlipCount = 0;
+let cachedNormalContent = '';
+let cachedOtpContent = '';
+
 // 加载外部卡片内容
 async function loadCardContent() {
     const cardContent = document.getElementById('cardContent');
     if (!cardContent) return;
 
     try {
+        // 加载普通内容
         const response = await fetch('./data/Card.encrypted');
-        if (!response.ok) {
-            throw new Error('Failed to load encrypted card content');
+        if (response.ok) {
+            cachedNormalContent = decryptCardContent(await response.text());
         }
-        const encryptedContent = await response.text();
 
-        const decryptedHTML = decryptCardContent(encryptedContent);
+        // 预加载OTP内容（如果存在）
+        try {
+            const otpRes = await fetch('./data/otp.encrypted');
+            if (otpRes.ok) {
+                cachedOtpContent = decryptCardContent(await otpRes.text());
+            }
+        } catch (e) {
+            console.log('OTP content not available');
+        }
 
-        cardContent.innerHTML = decryptedHTML;
+        // 初始渲染普通内容
+        cardContent.innerHTML = cachedNormalContent;
 
         // 初始化卡片交互
         initCardInteraction();
@@ -1754,11 +1768,64 @@ function initCardInteraction() {
     if (!card) return;
 
     card.addEventListener('click', function () {
-        if (card.classList.contains('flipped')) {
-            card.classList.remove('flipped');
+        const isOpening = !card.classList.contains('flipped');
+
+        if (isOpening) {
+            cardFlipCount++;
+
+            if (cardFlipCount % 10 === 0 && cachedOtpContent) {
+                // 切换到OTP内容
+                const container = document.getElementById('cardContent');
+                container.innerHTML = cachedOtpContent;
+
+                // 重新初始化交互
+                initCardInteraction();
+
+                // 执行新内容中的脚本
+                executeScripts(container);
+
+                // 强制重排
+                void container.offsetWidth;
+
+                // 打开新卡片
+                const newCard = document.getElementById('card');
+                requestAnimationFrame(() => {
+                    newCard.classList.add('flipped');
+                });
+
+            } else {
+                // 普通翻转
+                // 检查是否需要切回普通内容（如果当前是OTP内容）
+                if (document.getElementById('otp')) {
+                    const container = document.getElementById('cardContent');
+                    container.innerHTML = cachedNormalContent;
+
+                    initCardInteraction();
+                    void container.offsetWidth;
+
+                    const newCard = document.getElementById('card');
+                    requestAnimationFrame(() => {
+                        newCard.classList.add('flipped');
+                    });
+                } else {
+                    card.classList.add('flipped');
+                }
+            }
         } else {
-            card.classList.add('flipped');
+            // 关闭卡片
+            card.classList.remove('flipped');
         }
+    });
+}
+
+// 辅助函数：执行容器内的脚本
+function executeScripts(container) {
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
     });
 }
 
