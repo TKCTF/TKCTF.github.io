@@ -1,21 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <title>TKCTF - 浙江同济科技职业学院信息安全社团</title>
     <link rel="stylesheet" href="./src/styles.css">
+    <script src="./src/loading.js"></script>
 </head>
+
 <body>
     <!-- 网格背景 -->
     <div class="grid-bg"></div>
+
+    <!-- Loading Mask -->
+    <div id="loadingMask">
+        <div class="loading-content">
+            <div class="loading-text">SYSTEM INITIALIZING...</div>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div id="progressText" class="progress-text">0%</div>
+        </div>
+    </div>
 
     <!-- 数据流背景 -->
     <div class="data-streams" id="dataStreams"></div>
     <!-- 音频元素 -->
     <audio id="bgmAudio" preload="auto">
-        <source src="./sound/bgm.mp3" type="audio/mpeg">
         您的浏览器不支持音频播放。
     </audio>
 
@@ -27,10 +40,10 @@
             </div>
             <h1 class="main-title title-fade-in">TKCTF</h1>
             <p class="subtitle subtitle-fade-in">浙江同济科技职业学院信息安全社团</p>
-                <!-- 音频状态提示 -->
-                <div class="audio-status blink" id="audioStatus">
-                    点击 LOGO 播放 BGM
-                </div>
+            <!-- 音频状态提示 -->
+            <div class="audio-status blink" id="audioStatus">
+                点击 LOGO 播放 BGM
+            </div>
         </header>
 
         <!-- 导航 -->
@@ -98,7 +111,8 @@
             <div class="contact-item">
                 <span class="contact-icon">📍</span>
                 <span>地址：
-                    浙江省杭州市萧山区宁围街道耕文路418号<a href="https://www.zjtongji.edu.cn/" target="_blank">浙江同济科技职业学院</a>图书信息楼405-2</span>
+                    浙江省杭州市萧山区宁围街道耕文路418号<a href="https://www.zjtongji.edu.cn/"
+                        target="_blank">浙江同济科技职业学院</a>图书信息楼405-2</span>
             </div>
             <div class="contact-item">
                 <span class="contact-icon">📧</span>
@@ -134,7 +148,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="./src/scripts.js"></script>
-    
+
 </body>
 
 </html>

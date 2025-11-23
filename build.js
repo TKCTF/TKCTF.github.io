@@ -56,7 +56,8 @@ const buildOptions = {
   entryPoints: {
     'src/scripts.min': './src/scripts.js',
     'src/styles.min': './src/styles.css',
-    'src/spectrum-worker.min': './src/spectrum-worker.js'
+    'src/spectrum-worker.min': './src/spectrum-worker.js',
+    'src/loading.min': './src/loading.js'
   },
   bundle: true,
   minify: true,
@@ -96,6 +97,10 @@ function copyStatic() {
     indexContent = indexContent.replace(
       'src="./src/scripts.js"',
       'src="./src/scripts.min.js"'
+    );
+    indexContent = indexContent.replace(
+      'src="./src/loading.js"',
+      'src="./src/loading.min.js"'
     );
     // 注入最后构建时间（东八区 ISO 8601），插入到 footer 内部
     const buildISO = formatISO8601Shanghai(new Date());
@@ -212,7 +217,8 @@ function printFileTree() {
   log('  ├── src/');
   log('  │   ├── scripts.min.js');
   log('  │   ├── styles.min.css');
-  log('  │   └── spectrum-worker.min.js');
+  log('  │   ├── spectrum-worker.min.js');
+  log('  │   └── loading.min.js');
   log('  ├── data/');
   log('  ├── img/');
   log('  ├── sound/');

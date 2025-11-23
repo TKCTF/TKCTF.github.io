@@ -78,6 +78,7 @@ npm run start
 TKCTF.github.io/
 ├── src/                    # 源代码
 │   ├── scripts.js         # 主要 JavaScript 逻辑
+│   ├── loading.js         # 启动加载逻辑
 │   ├── styles.css         # 样式文件
 │   └── spectrum-worker.js # Web Worker 音频处理线程
 ├── data/                  # 数据文件
@@ -356,6 +357,7 @@ publish/
 ├── index.html              # 主页面
 ├── src/
 │   ├── scripts.min.js      # 压缩的 JavaScript
+│   ├── loading.min.js      # 压缩的加载脚本
 │   ├── styles.min.css      # 压缩的 CSS
 │   └── spectrum-worker.min.js  # 压缩的 Web Worker 音频处理线程
 ├── data/                   # 数据文件
@@ -632,6 +634,21 @@ worker.onmessage = function(e) {
   // 更新可视化效果
 };
 ```
+
+### ⏳ 加载与音频控制系统
+
+#### **智能预加载**
+- **沉浸式加载**：全屏加载遮罩，确保资源就绪前不被打扰
+- **实时进度条**：基于 XHR 的 `bgm.mp3` 下载进度实时反馈
+- **平滑过渡**：
+  - 加载完成后 0.7s 放大淡出动画
+  - 100% 进度智能停顿，提供完整的视觉反馈
+- **代码分离**：独立的 `loading.js` 处理早期加载逻辑
+
+#### **音频交互优化**
+- **淡出暂停**：点击暂停时触发 0.5s 音量淡出，拒绝戛然而止
+- **智能恢复**：重新播放时自动重置音量
+- **状态管理**：精确的播放/暂停状态同步
 
 ### 加密内容管理
 
