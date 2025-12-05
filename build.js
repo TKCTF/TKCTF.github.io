@@ -67,7 +67,12 @@ const buildOptions = {
   format: 'iife',
   globalName: 'TKCTF',
   loader: {
-    '.css': 'css'
+    '.css': 'css',
+    '.woff2': 'file',
+    '.woff': 'file',
+    '.ttf': 'file',
+    '.eot': 'file',
+    '.otf': 'file'
   },
   external: ['crypto-js'],
   plugins: [
@@ -82,6 +87,46 @@ const buildOptions = {
     }
   ]
 };
+
+// =============================
+// 🗺 自动生成 sitemap.xml
+// =============================
+function generateSitemap() {
+  let baseUrl = 'https://zjtongji.tkctf.top';
+  
+  // 尝试从 index.html 的 canonical 标签中提取 URL
+  if (fs.existsSync('./index.html')) {
+    const indexContent = fs.readFileSync('./index.html', 'utf8');
+    const canonicalMatch = indexContent.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i);
+    if (canonicalMatch) {
+      baseUrl = canonicalMatch[1].replace(/\/$/, ''); // 移除末尾斜杠
+    }
+  }
+  
+  // 生成当前日期（YYYY-MM-DD 格式）
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const lastmod = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  
+  // 生成 sitemap.xml 内容
+  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+</urlset>`;
+  
+  // 保存到根目录
+  fs.writeFileSync('sitemap.xml', sitemapContent, 'utf8');
+  log('🗺 sitemap.xml 已自动生成');
+  
+  return sitemapContent;
+}
 
 // =============================
 // 📄 复制 HTML + 静态资源
@@ -150,6 +195,19 @@ function copyStatic() {
     fs.copyFileSync('favicon.ico', path.join(distDir, 'favicon.ico'));
     log('🖼 favicon.ico 已复制');
   }
+
+  // --- robots.txt ---
+  if (fs.existsSync('robots.txt')) {
+    fs.copyFileSync('robots.txt', path.join(distDir, 'robots.txt'));
+    log('🤖 robots.txt 已复制');
+  }
+
+  // --- sitemap.xml ---
+  // 复制自动生成的 sitemap.xml（如果存在）
+  if (fs.existsSync('sitemap.xml')) {
+    fs.copyFileSync('sitemap.xml', path.join(distDir, 'sitemap.xml'));
+    log('🗺 sitemap.xml 已复制到输出目录');
+  }
 }
 
 // =============================
@@ -158,6 +216,8 @@ function copyStatic() {
 async function build() {
   try {
     log('🚀 开始构建...');
+    // 先生成 sitemap.xml
+    generateSitemap();
     await esbuild.build(buildOptions);
     copyStatic();
     printFileTree();
@@ -172,6 +232,9 @@ async function build() {
 // =============================
 async function watch() {
   log('👀 启动监听模式...');
+  
+  // 初始生成 sitemap.xml
+  generateSitemap();
 
   // esbuild 监听 JS/CSS 改动并输出日志
   const context = await esbuild.context({
@@ -197,9 +260,13 @@ async function watch() {
   });
   await context.watch();
 
-  // chokidar 只监听 HTML 变化
-  chokidar.watch(['index.html']).on('change', () => {
-    log('📝 index.html 发生变动，重新复制...');
+  // chokidar 监听 HTML 和 SEO 文件变化
+  chokidar.watch(['index.html', 'robots.txt']).on('change', (filePath) => {
+    log(`📝 ${filePath} 发生变动，重新生成 sitemap 并复制...`);
+    // index.html 变化时重新生成 sitemap（因为可能 URL 变化）
+    if (filePath === 'index.html') {
+      generateSitemap();
+    }
     copyStatic();
   });
 
@@ -223,7 +290,9 @@ function printFileTree() {
   log('  ├── img/');
   log('  ├── sound/');
   log('  ├── fonts/');
-  log('  └── CNAME');
+  log('  ├── CNAME');
+  log('  ├── robots.txt');
+  log('  └── sitemap.xml');
 }
 
 // =============================

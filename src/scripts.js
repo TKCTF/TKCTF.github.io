@@ -553,9 +553,86 @@ function handleBackToTop() {
         } else {
             backToTopBtn.style.bottom = defaultBottom + 'px';
         }
+
+        // 更新滚动进度环
+        updateScrollProgress(scrollTop);
     } else {
         backToTopBtn.classList.remove('show');
     }
+}
+
+// 初始化滚动进度环
+function initScrollProgress() {
+    const backToTopBtn = document.getElementById('backToTop');
+    if (!backToTopBtn) return;
+
+    const svg = backToTopBtn.querySelector('.progress-ring');
+    const backgroundCircle = backToTopBtn.querySelector('.progress-ring-circle');
+    const progressCircle = backToTopBtn.querySelector('.progress-ring-progress');
+    
+    if (!svg || !backgroundCircle || !progressCircle) return;
+
+    // 计算圆的参数（根据屏幕尺寸）
+    const isMobile = window.innerWidth < 768;
+    const buttonSize = isMobile ? 45 : 50;
+    const svgSize = buttonSize * 1.2; // SVG 是按钮的 120%，为发光效果留出空间
+    const radius = isMobile ? 21.5 : 23;
+    const center = svgSize / 2; // 圆的中心在 SVG 的中心
+    const circumference = 2 * Math.PI * radius;
+
+    // 更新 SVG 尺寸（CSS 会通过 transform 让它居中）
+    svg.setAttribute('width', svgSize);
+    svg.setAttribute('height', svgSize);
+
+    // 更新圆的坐标和半径
+    backgroundCircle.setAttribute('cx', center);
+    backgroundCircle.setAttribute('cy', center);
+    backgroundCircle.setAttribute('r', radius);
+    
+    progressCircle.setAttribute('cx', center);
+    progressCircle.setAttribute('cy', center);
+    progressCircle.setAttribute('r', radius);
+    progressCircle.setAttribute('transform', `rotate(-90 ${center} ${center})`);
+
+    // 设置 stroke-dasharray 为圆的周长
+    progressCircle.setAttribute('stroke-dasharray', circumference);
+    progressCircle.style.strokeDashoffset = circumference;
+}
+
+// 更新滚动进度环
+function updateScrollProgress(scrollTop) {
+    const backToTopBtn = document.getElementById('backToTop');
+    if (!backToTopBtn) return;
+
+    const progressCircle = backToTopBtn.querySelector('.progress-ring-progress');
+    if (!progressCircle) return;
+
+    // 计算可滚动高度
+    const documentHeight = document.documentElement.scrollHeight;
+    const windowHeight = window.innerHeight;
+    const scrollableHeight = documentHeight - windowHeight;
+
+    // 计算滚动进度（0 到 1）
+    const progress = scrollableHeight > 0 ? Math.min(scrollTop / scrollableHeight, 1) : 0;
+
+    // 计算圆的周长（根据屏幕尺寸）
+    const isMobile = window.innerWidth < 768;
+    const radius = isMobile ? 21.5 : 23;
+    const circumference = 2 * Math.PI * radius;
+
+    // 获取当前的 stroke-dasharray，如果未设置则初始化
+    const currentDashArray = progressCircle.getAttribute('stroke-dasharray');
+    if (!currentDashArray) {
+        progressCircle.setAttribute('stroke-dasharray', circumference);
+    }
+
+    // 计算 stroke-dashoffset（从完整到0，表示进度从0%到100%）
+    // 当 progress = 0 时，offset = circumference（完全隐藏，只显示一个小点）
+    // 当 progress = 1 时，offset = 0（完全显示，圆圈闭合）
+    const offset = circumference * (1 - progress);
+
+    // 更新 SVG 的 stroke-dashoffset
+    progressCircle.style.strokeDashoffset = offset;
 }
 
 // 返回顶部功能
@@ -1014,13 +1091,33 @@ function unlockScroll() {
     delete window._tkctfScrollTop;
 }
 
-// 更新加载遮罩的进度条
-function updateLoadingProgress(percent) {
+// 加载进度状态管理
+const loadingState = {
+    bgm: { loaded: 0, total: 0, percent: 0 },
+    fonts: { loaded: 0, total: 0, percent: 0 },
+    bgmWeight: 0.7,  // BGM 占 70%
+    fontsWeight: 0.3 // 字体占 30%
+};
+
+// 更新加载遮罩的进度条（合并 BGM 和字体进度）
+function updateLoadingProgress() {
     const progressBar = document.getElementById("progressBar");
     const progressText = document.getElementById("progressText");
 
-    if (progressBar) progressBar.style.width = percent + "%";
-    if (progressText) progressText.innerText = Math.floor(percent) + "%";
+    // 计算合并后的总进度
+    const totalPercent = 
+        loadingState.bgm.percent * loadingState.bgmWeight + 
+        loadingState.fonts.percent * loadingState.fontsWeight;
+
+    if (progressBar) progressBar.style.width = totalPercent + "%";
+    if (progressText) progressText.innerText = Math.floor(totalPercent) + "%";
+
+    // 当两者都完成时，开始淡出动画
+    if (loadingState.bgm.percent >= 100 && loadingState.fonts.percent >= 100) {
+        setTimeout(() => {
+            startFadeOutAnimation();
+        }, 200);
+    }
 }
 
 // 初始化
@@ -1031,21 +1128,110 @@ document.addEventListener('DOMContentLoaded', function () {
     // 提前加载logo
     loadLogoSVG();
 
-    // 开始加载BGM
+    // 同时开始加载 BGM 和字体
     loadMP3WithProgress('./sound/bgm.mp3');
+    loadFontsWithProgress();
 });
 
+// 加载字体文件
+function loadFontsWithProgress() {
+    const fontFiles = [
+        './fonts/tkctf.woff2',
+        './fonts/mainfont.woff2',
+        './fonts/textfont.woff2',
+        './fonts/otp.woff2',
+        './fonts/otp-tips.woff2'
+    ];
+
+    const totalFonts = fontFiles.length;
+    const fontProgress = new Array(totalFonts).fill(0);
+    let completedCount = 0;
+
+    fontFiles.forEach((fontUrl, index) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", fontUrl, true);
+        xhr.responseType = "blob";
+
+        xhr.onprogress = function (event) {
+            if (event.lengthComputable) {
+                // 更新当前字体的加载进度
+                fontProgress[index] = (event.loaded / event.total) * 100;
+                // 计算所有字体的平均进度
+                const totalProgress = fontProgress.reduce((sum, p) => sum + p, 0);
+                loadingState.fonts.percent = totalProgress / totalFonts;
+                updateLoadingProgress();
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                // 创建字体对象并加载
+                const blob = xhr.response;
+                const fontUrlObj = URL.createObjectURL(blob);
+                
+                // 使用 FontFace API 加载字体
+                const fontName = getFontNameFromUrl(fontUrl);
+                if (fontName && 'fonts' in document) {
+                    const font = new FontFace(fontName, `url(${fontUrlObj})`);
+                    font.load().then(() => {
+                        document.fonts.add(font);
+                    }).catch(err => {
+                        console.warn(`Font ${fontName} load failed:`, err);
+                    });
+                }
+
+                fontProgress[index] = 100;
+                completedCount++;
+                // 计算所有字体的平均进度
+                const totalProgress = fontProgress.reduce((sum, p) => sum + p, 0);
+                loadingState.fonts.percent = totalProgress / totalFonts;
+                updateLoadingProgress();
+            } else {
+                console.warn(`Font ${fontUrl} load failed, continuing...`);
+                fontProgress[index] = 100; // 标记为完成，继续
+                completedCount++;
+                const totalProgress = fontProgress.reduce((sum, p) => sum + p, 0);
+                loadingState.fonts.percent = totalProgress / totalFonts;
+                updateLoadingProgress();
+            }
+        };
+
+        xhr.onerror = function () {
+            console.warn(`Font ${fontUrl} load error, continuing...`);
+            fontProgress[index] = 100; // 标记为完成，继续
+            completedCount++;
+            const totalProgress = fontProgress.reduce((sum, p) => sum + p, 0);
+            loadingState.fonts.percent = totalProgress / totalFonts;
+            updateLoadingProgress();
+        };
+
+        xhr.send();
+    });
+}
+
+// 从 URL 获取字体名称
+function getFontNameFromUrl(url) {
+    const fontMap = {
+        'tkctf.woff2': 'TKCTF',
+        'mainfont.woff2': 'MainFont',
+        'textfont.woff2': 'TextFont',
+        'otp.woff2': 'OTP',
+        'otp-tips.woff2': 'OTP-Tips'
+    };
+    const fileName = url.split('/').pop();
+    return fontMap[fileName] || null;
+}
+
+// 加载 BGM 文件
 function loadMP3WithProgress(url) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = "blob";
 
-    const progressBar = document.getElementById("progressBar");
-
     xhr.onprogress = function (event) {
         if (event.lengthComputable) {
-            const percent = (event.loaded / event.total * 100).toFixed(0);
-            updateLoadingProgress(percent);
+            loadingState.bgm.percent = (event.loaded / event.total) * 100;
+            updateLoadingProgress();
         }
     };
 
@@ -1057,22 +1243,19 @@ function loadMP3WithProgress(url) {
                 audio.src = URL.createObjectURL(blob);
             }
 
-            // 加载完成，直接设置到100%
-            updateLoadingProgress(100);
-
-            // 等待一小段时间后开始放大淡出效果
-            setTimeout(() => {
-                startFadeOutAnimation();
-            }, 200);
+            loadingState.bgm.percent = 100;
+            updateLoadingProgress();
         } else {
             console.error("BGM load failed, initializing anyway");
-            hideMaskAndInit();
+            loadingState.bgm.percent = 100; // 标记为完成，继续加载
+            updateLoadingProgress();
         }
     };
 
     xhr.onerror = function () {
         console.error("BGM load error, initializing anyway");
-        hideMaskAndInit();
+        loadingState.bgm.percent = 100; // 标记为完成，继续加载
+        updateLoadingProgress();
     };
 
     xhr.send();
@@ -1130,6 +1313,9 @@ function initPage() {
 
     // 初始化滚动位置
     lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    // 初始化滚动进度环
+    initScrollProgress();
 
     createDataStreams();
     createBinarySpectrum();
@@ -2983,6 +3169,11 @@ window.addEventListener('resize', () => {
     resizeTimeout = setTimeout(() => {
         // 更新移动端检测
         isMobile = window.innerWidth < 768;
+        // 重新初始化滚动进度环（因为半径可能变化）
+        initScrollProgress();
+        // 更新当前滚动进度
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        updateScrollProgress(scrollTop);
         createBinarySpectrum();
 
         // 更新性能档位控件位置

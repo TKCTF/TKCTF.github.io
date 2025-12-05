@@ -1,4 +1,30 @@
 /* TKCTF 官网样式文件 */
+
+/* 字体定义 */
+@font-face {
+    font-family: 'TKCTF';
+    src: url('../fonts/tkctf.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'MainFont';
+    src: url('../fonts/mainfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'TextFont';
+    src: url('../fonts/textfont.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +32,7 @@
 }
 
 body {
-    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    font-family: 'TextFont', sans-serif;
     background: linear-gradient(135deg, #0c1121 0%, #1a1f3a 50%, #0c1121 100%);
     color: #00e4ff;
     overflow-x: hidden;
@@ -437,7 +463,8 @@ header {
 }
 
 .main-title {
-    font-size: 3.5rem;
+    font-family: 'TKCTF', sans-serif;
+    font-size: 2.98rem;
     font-weight: bold;
     background: linear-gradient(45deg, #00e4ff, #007acc, #0099ff);
     -webkit-background-clip: text;
@@ -448,6 +475,7 @@ header {
 }
 
 .subtitle {
+    font-family: 'MainFont', sans-serif;
     font-size: 1.2rem;
     color: #66ccff;
     opacity: 0.9;
@@ -533,6 +561,7 @@ nav {
 }
 
 .nav-container {
+    font-family: 'MainFont', sans-serif;
     display: flex;
     justify-content: center;
     gap: 40px;
@@ -654,10 +683,7 @@ nav a:hover {
     color: #00e4ff;
     margin-bottom: 30px;
     text-align: center;
-    text-shadow:
-        0 0 20px rgba(0, 228, 255, 0.5),
-        0 0 40px rgba(0, 228, 255, 0.3),
-        0 0 60px rgba(0, 228, 255, 0.1);
+    text-shadow: 0 0 20px rgba(0, 228, 255, 0.5), 0 0 40px rgba(0, 228, 255, 0.3), 0 0 60px rgba(0, 228, 255, 0.1);
     letter-spacing: 2px;
     animation: techGlow 3s ease-in-out infinite;
     position: relative;
@@ -1044,6 +1070,7 @@ nav a:hover {
 
 /* 成员信息缺失故障效果 */
 .unknown-member {
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
     color: #ff4444;
     font-style: bold;
     animation: glitchText 1.25s infinite;
@@ -1543,7 +1570,7 @@ a:hover {
 /* 响应式设计 */
 @media (max-width: 768px) {
     .main-title {
-        font-size: 2.5rem;
+        font-size: 2.125rem;
     }
 
     .logo-container {
@@ -1634,7 +1661,7 @@ a:hover {
     }
 
     .main-title {
-        font-size: 2rem;
+        font-size: 1.7rem;
     }
 
     .subtitle {
@@ -1938,6 +1965,7 @@ a:hover {
 
 /* Footer频谱背景 */
 footer {
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
     text-align: center;
     padding: 30px 0;
     background: rgba(0, 20, 40, 0.8);
@@ -2043,6 +2071,7 @@ footer {
 
 /* 性能档位切换控件 */
 .performance-toggle {
+    font-family: 'MainFont', sans-serif;
     position: fixed;
     top: 20px;
     right: 10px;
@@ -2102,6 +2131,7 @@ footer {
 }
 
 .performance-toggle-label {
+    font-family: 'MainFont', sans-serif;
     color: #00e4ff;
     font-size: 0.8rem;
     margin-bottom: 8px;
@@ -2115,6 +2145,7 @@ footer {
 }
 
 .performance-btn {
+    font-family: 'MainFont', sans-serif;
     background: rgba(0, 228, 255, 0.1);
     border: 1px solid rgba(0, 228, 255, 0.3);
     color: #00e4ff;
@@ -2177,7 +2208,7 @@ footer {
     width: 50px;
     height: 50px;
     background: rgba(0, 228, 255, 0.2);
-    border: 2px solid rgba(0, 228, 255, 0.6);
+    border: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -2191,11 +2222,11 @@ footer {
     z-index: 1000;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    overflow: visible;
 }
 
 .back-to-top:hover {
     background: rgba(0, 228, 255, 0.3);
-    border-color: rgba(0, 228, 255, 0.9);
     box-shadow: 0 0 20px rgba(0, 228, 255, 0.4);
     transform: translateY(-2px);
 }
@@ -2207,6 +2238,7 @@ footer {
 
 .back-to-top::before {
     content: '▲\ATOP';
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
     color: #00e4ff;
     font-size: 12px;
     font-weight: bold;
@@ -2214,6 +2246,33 @@ footer {
     line-height: 1.2;
     text-align: center;
     white-space: pre;
+    position: absolute;
+    z-index: 2;
+}
+
+/* SVG 进度环 */
+.back-to-top .progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    overflow: visible;
+}
+
+.back-to-top .progress-ring-circle {
+    transition: stroke 0.3s ease;
+}
+
+.back-to-top .progress-ring-progress {
+    transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+    filter: drop-shadow(0 0 3px rgba(0, 228, 255, 0.8));
+}
+
+.back-to-top:hover .progress-ring-progress {
+    filter: drop-shadow(0 0 5px rgba(0, 228, 255, 1));
 }
 
 /* 移动端优化 */
@@ -2259,10 +2318,16 @@ footer {
         right: 20px;
         width: 45px;
         height: 45px;
+        overflow: visible;
     }
 
     .back-to-top::before {
         font-size: 10px;
+    }
+
+    .back-to-top .progress-ring {
+        width: 120%;
+        height: 120%;
     }
 }
 
